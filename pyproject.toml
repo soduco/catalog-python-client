@@ -1,11 +1,9 @@
 [tool.poetry]
-name = "geonetworkresources"
+name = "geonetwork_resources"
 version = "0.1.0"
 description = ""
 authors = []
 readme = "README.md"
-packages = [{include = "api_wrapper"},
-            {include = "cli"}]
 
 [tool.poetry.dependencies]
 python = "^3.8"
