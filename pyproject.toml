@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "geonetworkresources"
+version = "0.1.0"
+description = ""
+authors = []
+readme = "README.md"
+packages = [{include = "api_wrapper"},
+            {include = "cli"}]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+requests = "^2.28.1"
+pydantic = "^1.10.2"
+PyYAML = "^6.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
