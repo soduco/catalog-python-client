@@ -5,8 +5,9 @@ from typing import List
 import uuid
 from pydantic import BaseModel
 import yaml
+import os
 
-XML_TEMPLATE = "fixtures/metadata_template.xml"
+XML_TEMPLATE = os.path.dirname(__file__) + "/xmltemplates/dataset_iso19115.xml"
 
 """
 register_namespaces() method isn't sufficient alone.
