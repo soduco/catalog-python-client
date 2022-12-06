@@ -5,7 +5,7 @@ import xml_composers
 import xml.etree.ElementTree as ET
 import os
 
-def main():
+def yaml_to_xml():
     """
         Read yaml file
         Build XML record
@@ -42,8 +42,3 @@ def main():
             xml_tree.write(xml_filename)
 
             i+=1
-
-#region main entrypoint
-if __name__ == "__main__":
-    main()
-#endregion
