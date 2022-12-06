@@ -1,0 +1,28 @@
+{
+  "errors": [],
+  "infos": [],
+  "uuid": "42bc0768-e0c0-416b-b694-2de44957864b",
+  "metadata": [],
+  "metadataErrors": {},
+  "metadataInfos": {
+    "308": [{
+      "message": "Metadata imported from XML with UUID '5dca9e41-bdbe-490c-b1a6-e1730a1136fb'",
+      "uuid": "5dca9e41-bdbe-490c-b1a6-e1730a1136fb",
+      "draft": "True",
+      "approved": "False",
+      "date": "2022-09-12T15:33:38.417Z"
+      }]
+    },
+  "numberOfNullRecords": 0,
+  "numberOfRecordsProcessed": 1,
+  "numberOfRecordsWithErrors": 0,
+  "numberOfRecordNotFound": 0,
+  "numberOfRecordsNotEditable": 0,
+  "numberOfRecords": 0,
+  "startIsoDateTime": "2022-09-12T15:33:38.316Z",
+  "endIsoDateTime": "2022-09-12T15:33:38.419Z",
+  "ellapsedTimeInSeconds": 0,
+  "totalTimeInSeconds": 0,
+  "type": "SimpleMetadataProcessingReport",
+  "running": "False"
+}
