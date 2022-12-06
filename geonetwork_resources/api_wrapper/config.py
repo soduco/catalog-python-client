@@ -5,4 +5,5 @@ config = {
     # **os.environ,  # override loaded values with environment variables
 }
 
-api_endpoint = config["GEONETWORK"] + config["API_PATH"]
+api_route_me = config["GEONETWORK"] + config["API_PATH"] + "/me"
+api_route_records = config["GEONETWORK"] + config["API_PATH"] + "/records"

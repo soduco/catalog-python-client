@@ -6,7 +6,7 @@ def get_cookies(session: requests.Session, https_verify: bool=True) -> requests.
     This function is useful to get a CSRF token that can be used in other requests.
     """
     headers={"accept": "application/json"}
-    response = session.get(config.api_endpoint, headers=headers, verify=https_verify)
+    response = session.get(config.api_route_me, headers=headers, verify=https_verify)
     response.raise_for_status()
     return response.cookies or {}
 
@@ -30,7 +30,7 @@ def log_in(user: str, password: str, session: requests.Session=requests.Session(
         "cookies": cookies,
         "allow_redirects": True        
     }
-    response = session.get(config.api_endpoint, **opts)
+    response = session.get(config.api_route_me, **opts)
     response.raise_for_status()
     
     # Update session cookies with the cookie holding the CSRF TOKEN
