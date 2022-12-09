@@ -1,5 +1,5 @@
 import argparse
-from _helpers import is_valid_file
+from helpers import is_valid_file
 import yaml
 import xml_composers
 import xml.etree.ElementTree as ET

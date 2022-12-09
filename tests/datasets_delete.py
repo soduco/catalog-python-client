@@ -1,6 +1,6 @@
 import argparse
 import requests
-from geonetwork_resources.api_wrapper import geonetwork,config, helpers, dataset
+from geonetwork_resources.api_wrapper import geonetwork, config, helpers, dataset
 import csv
 
 #region DELETE
