@@ -1,12 +1,15 @@
 import argparse
-import yaml
-import requests
-import xml.etree.ElementTree as ET
-from geonetwork_resources.api_wrapper import geonetwork,config, helpers, xml_composers, dataset
-import time
-import pandas
-import uuid
+import csv
 import random
+import time
+import uuid
+import xml.etree.ElementTree as ET
+
+import requests
+import yaml
+
+from geonetwork_resources.api_wrapper import config, dataset, geonetwork, helpers, xml_composers
+
 
 def main():
     """
@@ -30,13 +33,14 @@ def main():
 
     args = parser.parse_args()
 
+    session = geonetwork.log_in(config.config["GEONETWORK_USER"], config.config["GEONETWORK_PASSWORD"])
+
     # Loads a dataset definition from a YAML document
     with args.inputfile as yaml_multidoc:
 
         uuid_list, postponed_list = [], []
         yaml_documents = list(yaml.load_all(yaml_multidoc, Loader=yaml.SafeLoader))
 
-        session = geonetwork.log_in(config.config["GEONETWORK_USER"], config.config["GEONETWORK_PASSWORD"])
 
         for yaml_doc in yaml_documents:
             builder = xml_composers.IsoDocumentBuilder(yaml_doc)
@@ -46,6 +50,11 @@ def main():
             ET.indent(xml_tree)
             
             json_response = dataset.upload(xml_tree, session).json()
+
+            if json_response["errors"] is None:
+                print(json_response["errors"])
+            else:
+                print(json_response["metadataInfos"])
 
             # See fictures/upload_json_response.json to see json response fixtures
 
@@ -158,22 +167,22 @@ def dump_uploaded_uuid(uuid_list: list, filepath: str):
         in a file with a timestamp
     """
 
-    local_id_list = []
-    uploaded_uuid_list = []
+    fields = ['yaml_identifier', 'uuid']
+
+    rows = []
 
     for _uuid in uuid_list:
-        local_id_list.append(_uuid["local_id"])
-        uploaded_uuid_list.append(_uuid["uuid"])
+        rows.append([_uuid["local_id"], _uuid["uuid"]])
 
-    _dict = {'yaml_identifier': local_id_list,'uuid': uploaded_uuid_list}
 
     if filepath is None:
         filepath = f'uuids_output_{time.strftime("%Y%m%d-%H%M%S")}.csv'
 
-    # csv.writer doesn't works with uuid list
-    dataframe = pandas.DataFrame(_dict)
-    dataframe.to_csv(filepath, header=True, index=False)
-    dataframe.to_csv()
+    with open(filepath, 'w') as f:
+        # using csv.writer method from CSV package
+        write = csv.writer(f)
+        write.writerow(fields)
+        write.writerows(rows)
 
 #endregion
 

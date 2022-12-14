@@ -46,7 +46,10 @@ def delete_records_from_csv(session: requests.Session, csv_file: str) -> list:
         csv_reader = csv.DictReader(csvfile)
         for row in csv_reader:
             uuid_list.append(row["uuid"])
-    dataset.delete(uuid_list,session=session)
+    response = dataset.delete(uuid_list,session=session)
+
+    print(response)
+    
 
 #endregion
 
