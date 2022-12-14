@@ -15,7 +15,7 @@ def log_in(user: str, password: str, session: requests.Session=requests.Session(
     """ Connect to Geonetwork using the username and password in paramters.
     Returns a requests.Session with a cookie holding a CSRF_TOKEN.
     """
-    cookies = get_cookies(session, False)
+    cookies = get_cookies(session)
     token = cookies.get("XSRF-TOKEN", None)
 
     if not token:
@@ -32,7 +32,7 @@ def log_in(user: str, password: str, session: requests.Session=requests.Session(
     }
     response = session.get(config.api_route_me, **opts)
     response.raise_for_status()
-    
+
     # Update session cookies with the cookie holding the CSRF TOKEN
     cookies = requests.utils.dict_from_cookiejar(response.cookies)
     session.cookies.update(cookies)
