@@ -1,35 +1,33 @@
-import argparse
-import requests
-from geonetwork_resources.api_wrapper import geonetwork, config, helpers, dataset
+"""script to test delete function"""
+
 import csv
+import os
+
+import requests
+from geonetwork_resources.api_wrapper import (config, dataset, geonetwork,
+                                              helpers)
+
+__location__ = os.path.realpath(
+os.path.join(os.getcwd(), os.path.dirname(__file__)))
 
 #region DELETE
 
 def main():
     """
-        read arguments to choose wich script to execute
+        Read fixtures/test_uuids.csv (if it exists)
+        delete records from uuid
     """
-    parser = argparse.ArgumentParser(description='Upload records from a YAML file')
-    parser.add_argument("-i", dest="inputfile",
-                        help='delete records from a csv file, with uuid(s) to delete on second column',
-                        metavar="INPUT FILE",
-                        type=lambda x: helpers.is_valid_file(parser, x))
-    parser.add_argument("-l", dest="uuidList",
-                        default=None,
-                        help='delete records from a uuid list, in string format and separated by comma',
-                        metavar="UUID LIST")
 
-    args = parser.parse_args()
+    session = geonetwork.log_in(config.config["GEONETWORK_USER"],
+                                config.config["GEONETWORK_PASSWORD"])
 
-    if not (args.inputfile or args.uuidList):
-        parser.error('No action requested, add -i or -l')
+    uuid_list = helpers.uuid_list_from_csv(f'{__location__}/fixtures/test_uuids.csv')
 
-    session = geonetwork.log_in(config.config["GEONETWORK_USER"], config.config["GEONETWORK_PASSWORD"])
-    
-    if args.inputfile:
-        delete_records_from_csv(session=session, csv_file=args.inputfile.name)
-    if args.uuidList:
-        dataset.delete(args.uuidList, session=session)
+    if not uuid_list:
+        print("The file fixtures/test_uuids.csv does not exist!")
+    else:
+        response = dataset.delete(uuid_list, session=session)
+        print(response)
 
 #end region
 
@@ -49,7 +47,7 @@ def delete_records_from_csv(session: requests.Session, csv_file: str) -> list:
     response = dataset.delete(uuid_list,session=session)
 
     print(response)
-    
+
 
 #endregion
 

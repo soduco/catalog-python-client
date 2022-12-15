@@ -1,78 +1,33 @@
 """
-    Scripts to call batch edit from api
+    test batch edit from api
 """
 
-import json
-import requests
-import login
+import os
+from geonetwork_resources.api_wrapper import geonetwork, config, helpers, dataset
 
-CATALOG = "https://catalog.geohistoricaldata.org/geonetwork"
-API_ROUTE = "/srv/api/records/batchediting"
+__location__ = os.path.realpath(
+os.path.join(os.getcwd(), os.path.dirname(__file__)))
 
-CATALOGUSER="admin"
-CATALOGPASS="admin"
-
-def batch_edit(client: requests.Session, uuid_list: list, xpath: str, value: str, **kwargs):
+def main():
     """
-        Call the batch_edit API endpoint in geonetwork.
-
-        :param requests.Session client: the http connexion
-        :param list uuid_list: list of uuid in str format to edit
-        :param str xpath: xpath of the element to edit
-        :param str value: the xml element to add
-
-        Each xmlns must be declared.
-        The body request must look like this example, which add a source dataset:
-        "[{
-            \"xpath\":\"//mdb:resourceLineage/mrl:LI_Lineage\",
-            \"value\":
-                \"<mrl:source xmlns:mrl=\\\"http://standards.iso.org/iso/19115/-3/mrl/2.0\\\"
-                uuidref=\\\"e34f34cb-240a-469b-95f5-97075490505b\\\"/>\"
-        }]"
+        main function
     """
 
-    client = client or requests.session()
+    session = geonetwork.log_in(config.config["GEONETWORK_USER"],
+                                config.config["GEONETWORK_PASSWORD"])
 
-    cookies = kwargs.get("cookies", None)
-    if cookies is None:
-        _, cookies = login.log_in(client, CATALOGUSER, CATALOGPASS)
+    uuid_list = helpers.uuid_list_from_csv(f'{__location__}/fixtures/test_uuids.csv')
 
-    url = CATALOG + API_ROUTE
+    xpath_title = "mdb:identificationInfo/mri:MD_DataIdentification/mri:citation/cit:CI_Citation/cit:title>"
 
-    headers = {
-        "X-XSRF-TOKEN": cookies.get("XSRF-TOKEN"),
-        "Content-Type": "application/json",
-        "accept": "application/json"
-    }
-
-    params = {
-        "uuids": uuid_list,
-        "updateDateStamp": "true"
-    }
-
-    # We drop the . before \\ in xpath
-    # It's needed for Etree but not for normal xpath behavior
-    if xpath[0] == ".":
-        xpath = xpath[1:]
-
-    data = [
-                {
-                    "xpath":xpath,
-                    "value":value
-                }
-            ]
+    if not uuid_list:
+        print("The file fixtures/test_uuids.csv does not exist!")
+    else:
+        response = dataset.update(uuid_list, xpath_title, "This title was edited", session=session)
+        print(response)
 
 
-    response = client.put(url,
-                params=params,
-                headers=headers,
-                cookies=cookies,
-                auth=(CATALOGUSER, CATALOGPASS),
-                # data needs to be in json format here
-                # python string doesnt work
-                data=json.dumps(data)
-                )
-    response.raise_for_status()
-
-
-    return response.json()
+#region main entrypoint
+if __name__ == "__main__":
+    main()
+#endregion

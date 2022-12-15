@@ -1,5 +1,7 @@
-import argparse
+"""script to test upload and edit function"""
+
 import csv
+import os
 import random
 import time
 import uuid
@@ -7,36 +9,24 @@ import xml.etree.ElementTree as ET
 
 import requests
 import yaml
+from geonetwork_resources.api_wrapper import (config, dataset, geonetwork,
+                                              xml_composers)
 
-from geonetwork_resources.api_wrapper import config, dataset, geonetwork, helpers, xml_composers
-
+__location__ = os.path.realpath(
+os.path.join(os.getcwd(), os.path.dirname(__file__)))
 
 def main():
     """
-        Read yaml file
-        Build XML record
-        We login here to avoid multiple logins, which cause a bug
-        XSRF-TOKEN is delivered only on first cookie call
-        So, we pass cookies to functions (thus **kwargs argument)
+        Read fixtures/instance.yaml
+        Build XML records
+        Upload them on catalog
     """
 
-    parser = argparse.ArgumentParser(description='Upload records from a YAML file')
-    parser.add_argument("-i", dest="inputfile",
-                        required=True,
-                        help='input YAML file, with records to upload',
-                        metavar="INPUT FILE",
-                        type=lambda x: helpers.is_valid_file(parser, x))
-    parser.add_argument("-o", dest="dumpfile",
-                        default=None,
-                        help='dump file for uuids generated',
-                        metavar="OUTPUT FILE")
-
-    args = parser.parse_args()
-
-    session = geonetwork.log_in(config.config["GEONETWORK_USER"], config.config["GEONETWORK_PASSWORD"])
+    session = geonetwork.log_in(config.config["GEONETWORK_USER"],
+                                config.config["GEONETWORK_PASSWORD"])
 
     # Loads a dataset definition from a YAML document
-    with args.inputfile as yaml_multidoc:
+    with open(f'{__location__}/fixtures/instance.yaml', encoding='utf8') as yaml_multidoc:
 
         uuid_list, postponed_list = [], []
         yaml_documents = list(yaml.load_all(yaml_multidoc, Loader=yaml.SafeLoader))
@@ -48,7 +38,7 @@ def main():
 
             # Beautify XML doc
             ET.indent(xml_tree)
-            
+
             json_response = dataset.upload(xml_tree, session).json()
 
             if json_response["errors"] is None:
@@ -67,7 +57,7 @@ def main():
             uuid_list.append(dict_to_append)
             postponed_list.append(builder.postponed)
 
-        dump_uploaded_uuid(uuid_list, filepath=args.dumpfile)
+        dump_uploaded_uuid(uuid_list, filepath=f'{__location__}/fixtures/test_uuids.csv')
 
         replace_uuid(uuid_list, postponed_list)
 
@@ -104,7 +94,7 @@ def edit_postponed_values(session: requests.Session, postponed_list: list):
                                    builder.parent_element_xpath,
                                    xml_element,
                                    session)
-                    
+
             if postponed["resourceLineage"]:
                 for _uuid in postponed["resourceLineage"]:
                     builder = xml_composers.ResourceLineage(uuidref=_uuid)
@@ -115,7 +105,6 @@ def edit_postponed_values(session: requests.Session, postponed_list: list):
                                    builder.parent_element_xpath,
                                    xml_element,
                                    session)
-                   
 
 
 #region HELPERS
@@ -176,11 +165,11 @@ def dump_uploaded_uuid(uuid_list: list, filepath: str):
 
 
     if filepath is None:
-        filepath = f'uuids_output_{time.strftime("%Y%m%d-%H%M%S")}.csv'
+        filepath = f'{__location__}/uuids_output_{time.strftime("%Y%m%d-%H%M%S")}.csv'
 
-    with open(filepath, 'w') as f:
+    with open(filepath, 'w', encoding='utf8') as file:
         # using csv.writer method from CSV package
-        write = csv.writer(f)
+        write = csv.writer(file)
         write.writerow(fields)
         write.writerows(rows)
 
