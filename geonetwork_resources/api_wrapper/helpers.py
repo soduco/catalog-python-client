@@ -2,9 +2,12 @@
     helpers functions
 """
 
-import os, io
-from typing import Any
+import csv
+import io
+import os
 import xml.etree.ElementTree as ET
+from typing import List
+from uuid import UUID
 
 
 def is_valid_file(parser, arg):
@@ -33,3 +36,22 @@ def drop_leading_dot_in_xpath(xpath: str) -> str:
     This helper function is used to patch xpaths expressions used to manipualte a ETree that must also be sent to the Geonetwork server. 
     """
     return xpath[1:] if xpath.startswith(".") else xpath
+
+
+def uuid_list_from_csv(csv_path: str) -> List[UUID]:
+    """return uuid list from csv column
+    """
+    if not os.path.exists(csv_path):
+        return
+    else:
+        filename = open(csv_path, 'r', encoding='utf8')
+        # creating dictreader object
+        file = csv.DictReader(filename)
+        # creating empty lists
+        uuid_list = []
+        # iterating over each row and append
+        # values to empty list
+        for col in file:
+            uuid_list.append(col['uuid'])
+                
+        return(uuid_list)
