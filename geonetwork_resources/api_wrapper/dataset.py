@@ -67,6 +67,6 @@ def update(uuid_list: List[UUID], edition_location: str, xml_patch: str, session
     
     response = session.put(config.api_route_batchediting, headers=headers, params=params, data=payload)
     response.raise_for_status()
-    return response.json()
+    return response
 
 # endregion
