@@ -1,3 +1,11 @@
+"""This module contains methods to interact with records on geonetwork via its API
+
+    You can :
+    - upload
+    - edit
+    - delete
+"""
+
 import json
 import xml.etree.ElementTree as ET
 from typing import List
@@ -8,8 +16,10 @@ import requests
 from . import config, helpers
 
 #region DELETE
- 
-def delete(uuid_list: List[UUID], backup_records: bool=True, session: requests.Session=requests.session()):
+
+def delete(uuid_list: List[UUID],
+           backup_records: bool=True,
+           session: requests.Session=requests.session()):
     """ delete one or more records from their uuid """
     # TODO : ensure that the session is "logged in" ?
     token = session.cookies.get_dict().get("XSRF-TOKEN")
@@ -21,7 +31,7 @@ def delete(uuid_list: List[UUID], backup_records: bool=True, session: requests.S
         "uuids": uuid_list,
         "withBackup": backup_records
     }
-    
+
     response = session.delete(config.api_route_records, headers=headers, params=params)
     response.raise_for_status()
     return response
@@ -34,7 +44,7 @@ def upload(xml: ET.ElementTree, session: requests.Session=requests.Session()):
     """ Upload a xml metadata file in the catalog and return its UUID """
     # TODO : ensure that the session is "logged in" ?
     token = session.cookies.get_dict().get("XSRF-TOKEN")
-    
+
     xml_string = helpers.xml_to_utf8string(xml)
     headers= {
         "X-XSRF-TOKEN": token,
