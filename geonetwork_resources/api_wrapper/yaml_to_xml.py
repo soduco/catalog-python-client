@@ -9,7 +9,7 @@ import yaml
 from . import xml_composers
 
 
-def yaml_to_xml(inputfile: str, outpufile=None):
+def yaml_to_xml(inputfile: str, outpufolder: str):
     """
         Read yaml file -> Build XML record
         Dump result in a xml file with "xml.etree.ElementTree.write()"
@@ -47,9 +47,7 @@ def yaml_to_xml(inputfile: str, outpufile=None):
     for info in doc_infos:
         rows.append([info['identifier'], info['xml_file']])
 
-
-    if outpufile is None:
-        outpufile = f'uuids_output_{time.strftime("%Y%m%d-%H%M%S")}.csv'
+        outpufile = f'{outpufolder}/uuids_output_{time.strftime("%Y%m%d-%H%M%S")}.csv'
 
     with open(outpufile, 'w', encoding='utf8') as file:
         # using csv.writer method from CSV package
