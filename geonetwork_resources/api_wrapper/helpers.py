@@ -32,8 +32,10 @@ def xml_to_utf8string(xml: ET.ElementTree) -> str:
 
 
 def drop_leading_dot_in_xpath(xpath: str) -> str:
-    """ET needs Xpaths expressions to start with a dot, but GeoNetwork doesn't behave as expected if there is a leading dot in the Xpath.
-    This helper function is used to patch xpaths expressions used to manipualte a ETree that must also be sent to the Geonetwork server. 
+    """Function to patch xpaths expressions sent to Geonetwork.
+
+    xml.ElementTree needs Xpaths expressions to start with a dot.
+    GeoNetwork needs this dot removed in Xpaths expressions.
     """
     return xpath[1:] if xpath.startswith(".") else xpath
 
@@ -53,5 +55,5 @@ def uuid_list_from_csv(csv_path: str) -> List[UUID]:
         # values to empty list
         for col in file:
             uuid_list.append(col['uuid'])
-                
-        return(uuid_list)
+
+        return uuid_list

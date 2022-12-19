@@ -1,15 +1,19 @@
+"""Script that build xml records from yaml documents
+"""
+
 import argparse
-from helpers import is_valid_file
-import yaml
-import xml_composers
-import xml.etree.ElementTree as ET
 import os
+import xml.etree.ElementTree as ET
+
+import yaml
+from . import helpers, xml_composers
+
 
 def yaml_to_xml():
     """
         Read yaml file
         Build XML record
-        Dump result in a xml file
+        Dump result in a xml file with "xml.etree.ElementTree.write()"
     """
 
     parser = argparse.ArgumentParser(description='Upload records from a YAML file')
@@ -17,8 +21,8 @@ def yaml_to_xml():
                         required=True,
                         help='input YAML file, with records to upload',
                         metavar="INPUT FILE",
-                        type=lambda x: is_valid_file(parser, x))
-    
+                        type=lambda x: helpers.is_valid_file(parser, x))
+
     args = parser.parse_args()
 
     # Loads a dataset definition from a YAML document
