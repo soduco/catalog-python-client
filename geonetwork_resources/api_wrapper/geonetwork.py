@@ -16,7 +16,7 @@ def get_cookies(session: requests.Session,
 
 
 def log_in(user: str, password: str, session: requests.Session=requests.Session()) -> str:
-    """ Connect to Geonetwork using the username and password in paramters.
+    """ Connect to Geonetwork using the username and password in parameters.
     Returns a requests.Session with a cookie holding a CSRF_TOKEN.
     """
     cookies = get_cookies(session)
