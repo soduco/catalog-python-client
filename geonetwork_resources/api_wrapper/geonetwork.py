@@ -1,7 +1,11 @@
+"""Log in functions
+"""
+
 import requests
 from . import config
 
-def get_cookies(session: requests.Session, https_verify: bool=True) -> requests.cookies.RequestsCookieJar:
+def get_cookies(session: requests.Session,
+                https_verify: bool=True) -> requests.cookies.RequestsCookieJar:
     """ Connect to Geonetwork API and return the cookies for the session passed is parameters.
     This function is useful to get a CSRF token that can be used in other requests.
     """

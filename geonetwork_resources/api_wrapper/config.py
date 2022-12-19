@@ -1,3 +1,6 @@
+"""Load .env values
+"""
+
 from dotenv import dotenv_values
 
 config = {
