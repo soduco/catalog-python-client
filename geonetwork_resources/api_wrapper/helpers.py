@@ -25,7 +25,6 @@ def is_valid_file(parser, arg):
         return open(arg, 'r', encoding='utf-8')  # return an open file handle
 
 
-
 def xml_to_utf8string(xml: ET.ElementTree) -> str:
     """
         Returns the string representation of a ET.ElementTree object encoded in UTF-8
@@ -36,7 +35,7 @@ def xml_to_utf8string(xml: ET.ElementTree) -> str:
 
 
 def read_xml_file(file: str) -> str:
-    """Read an XML file and return it as string
+    """Read an XML file and returns the section root element
     """
     tree = ET.parse(file)
 
@@ -137,10 +136,10 @@ def replace_uuid(csv_file: str, output_file: str):
             postponed_values = json.loads(postponed['postponed_values'])
 
             postponed_values['uuid'] = return_uuid(postponed_list, postponed_values['uuid'])
-            if 'associatedResource' in postponed_values:
+            if 'associatedResource' in postponed_values.keys():
                 for ressource in postponed_values['associatedResource']:
                     ressource['value'] = return_uuid(postponed_list, ressource['value'])
-            if 'resourceLineage' in postponed_values:
+            if 'resourceLineage' in postponed_values.keys():
                 for index, ressource in enumerate(postponed_values['resourceLineage']):
                     postponed_values['resourceLineage'][index] = return_uuid(postponed_list, ressource)
             postponed['postponed_values'] = json.dumps(postponed_values)
