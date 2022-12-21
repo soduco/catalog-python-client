@@ -2,15 +2,13 @@
 
 import csv
 import os
-import random
 import time
-import uuid
 import xml.etree.ElementTree as ET
 
 import requests
 import yaml
 from geonetwork_resources.api_wrapper import (config, dataset, geonetwork,
-                                              xml_composers)
+                                              xml_composers, helpers)
 
 __location__ = os.path.realpath(
 os.path.join(os.getcwd(), os.path.dirname(__file__)))
@@ -22,8 +20,8 @@ def main():
         Upload them on catalog
     """
 
-    session = geonetwork.log_in(config.config["GEONETWORK_USER"],
-                                config.config["GEONETWORK_PASSWORD"])
+    session = geonetwork.log_in(config.config['GEONETWORK_USER'],
+                                config.config['GEONETWORK_PASSWORD'])
 
     # Loads a dataset definition from a YAML document
     with open(f'{__location__}/fixtures/instance.yaml', encoding='utf8') as yaml_multidoc:
@@ -39,21 +37,23 @@ def main():
             # Beautify XML doc
             ET.indent(xml_tree)
 
-            json_response = dataset.upload(xml_tree, session).json()
+            # json_response = dataset.upload(xml_tree, session).json()
+            json_response = helpers.simulate_upload_json_response()
 
-            if json_response["errors"] is None:
-                print(json_response["errors"])
+
+            if json_response['errors'] is None:
+                print(json_response['errors'])
             else:
-                print(json_response["metadataInfos"])
+                print(json_response['metadataInfos'])
 
             # See fictures/upload_json_response.json to see json response fixtures
 
             # The key "Id" in "metadaInfos" change for every response, we can't access it directly
             # That's why next(iter(dict)) is needed here.
-            database_record_id = next(iter(json_response["metadataInfos"]))
-            _uuid = json_response["metadataInfos"][database_record_id][0]["uuid"]
+            database_record_id = next(iter(json_response['metadataInfos']))
+            _uuid = json_response['metadataInfos'][database_record_id][0]['uuid']
 
-            dict_to_append = {"local_id": yaml_doc["identifier"], "uuid": _uuid}
+            dict_to_append = {'local_id': yaml_doc['identifier'], 'uuid': _uuid}
             uuid_list.append(dict_to_append)
             postponed_list.append(builder.postponed)
 
@@ -81,73 +81,33 @@ def edit_postponed_values(session: requests.Session, postponed_list: list):
     for postponed in postponed_list:
     # if element lenght = 1 it contains only its uuid
         if len(postponed) > 1:
-            if postponed["associatedResource"]:
-                for associated_ressource in postponed["associatedResource"]:
+            if postponed['associatedResource']:
+                for associated_ressource in postponed['associatedResource']:
                     builder = xml_composers.AssociatedRessource(
-                        value=associated_ressource["value"],
-                        typeOfAssociation=associated_ressource["typeOfAssociation"]
+                        value=associated_ressource['value'],
+                        typeOfAssociation=associated_ressource['typeOfAssociation']
                     )
-                    xml_element = ET.tostring(builder.compose_xml(), encoding="unicode")
+                    xml_element = ET.tostring(builder.compose_xml(), encoding='unicode')
                     for namespace, uri in xml_composers.PREFIX_MAP.items():
                         ET.register_namespace(namespace, uri)
-                    dataset.update([postponed["uuid"]],
+                    dataset.update([postponed['uuid']],
                                    builder.parent_element_xpath,
                                    xml_element,
                                    session)
 
-            if postponed["resourceLineage"]:
-                for _uuid in postponed["resourceLineage"]:
+            if postponed['resourceLineage']:
+                for _uuid in postponed['resourceLineage']:
                     builder = xml_composers.ResourceLineage(uuidref=_uuid)
-                    xml_element = ET.tostring(builder.compose_xml(), encoding="unicode")
+                    xml_element = ET.tostring(builder.compose_xml(), encoding='unicode')
                     for namespace, uri in xml_composers.PREFIX_MAP.items():
                         ET.register_namespace(namespace, uri)
-                    dataset.update([postponed["uuid"]],
+                    dataset.update([postponed['uuid']],
                                    builder.parent_element_xpath,
                                    xml_element,
                                    session)
 
 
 #region HELPERS
-
-def simulate_upload_json_response():
-    """
-        helper to simulate upload json response
-    """
-    response_uuid = str(uuid.uuid4())
-    uploaded_record_uuid = str(uuid.uuid4())
-    db_id = random.randrange(999)
-
-    response = {
-        "errors": [],
-        "infos": [],
-        "uuid": response_uuid,
-        "metadata": [],
-        "metadataErrors": {},
-        "metadataInfos": {
-            f"{db_id}": [{
-            "message": f"Metadata imported from XML with UUID {uploaded_record_uuid}",
-            "uuid": uploaded_record_uuid,
-            "draft": "True",
-            "approved": "False",
-            "date": "2022-09-12T15:33:38.417Z"
-            }]
-            },
-        "numberOfNullRecords": 0,
-        "numberOfRecordsProcessed": 1,
-        "numberOfRecordsWithErrors": 0,
-        "numberOfRecordNotFound": 0,
-        "numberOfRecordsNotEditable": 0,
-        "numberOfRecords": 0,
-        "startIsoDateTime": "2022-09-12T15:33:38.316Z",
-        "endIsoDateTime": "2022-09-12T15:33:38.419Z",
-        "ellapsedTimeInSeconds": 0,
-        "totalTimeInSeconds": 0,
-        "type": "SimpleMetadataProcessingReport",
-        "running": "False"
-    }
-
-    return response
-
 
 # take all uuids at once
 def dump_uploaded_uuid(uuid_list: list, filepath: str):
@@ -161,7 +121,7 @@ def dump_uploaded_uuid(uuid_list: list, filepath: str):
     rows = []
 
     for _uuid in uuid_list:
-        rows.append([_uuid["local_id"], _uuid["uuid"]])
+        rows.append([_uuid['local_id'], _uuid['uuid']])
 
 
     if filepath is None:
@@ -200,14 +160,17 @@ def replace_uuid(uuid_list: list, postponed_list: list):
         ]
     """
 
+    # print(uuid_list)
+    # print(postponed_list)
+
     for postponed in postponed_list:
-        postponed["uuid"] = return_uuid(uuid_list, postponed["uuid"])
-        if "associatedResource" in postponed:
-            for ressource in postponed["associatedResource"]:
-                ressource["value"] = return_uuid(uuid_list, ressource["value"])
-        if "resourceLineage" in postponed:
-            for index, ressource in enumerate(postponed["resourceLineage"]):
-                postponed["resourceLineage"][index] = return_uuid(uuid_list, ressource)
+        postponed['uuid'] = return_uuid(uuid_list, postponed['uuid'])
+        if 'associatedResource' in postponed:
+            for ressource in postponed['associatedResource']:
+                ressource['value'] = return_uuid(uuid_list, ressource['value'])
+        if 'resourceLineage' in postponed:
+            for index, ressource in enumerate(postponed['resourceLineage']):
+                postponed['resourceLineage'][index] = return_uuid(uuid_list, ressource)
 
 #endregion
 
@@ -217,10 +180,11 @@ def return_uuid(uuid_list: list, identifier: str):
     """
         Take local yaml identifier and
         return corresponding uuid from upload response
-²    """
+    """
+    print(uuid_list)
     for _uuid in uuid_list:
-        if _uuid["local_id"] == identifier:
-            return _uuid["uuid"]
+        if _uuid['local_id'] == identifier:
+            return _uuid['uuid']
 
 
 #region main entrypoint

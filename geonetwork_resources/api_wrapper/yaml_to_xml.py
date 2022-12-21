@@ -4,7 +4,7 @@
 import os
 import xml.etree.ElementTree as ET
 import csv
-import time
+import json
 import yaml
 from . import xml_composers
 
@@ -24,8 +24,6 @@ def yaml_to_xml(inputfile: str, outpufolder: str):
         yaml_documents = list(yaml.load_all(yaml_multidoc, Loader=yaml.SafeLoader))
 
         for yaml_doc in yaml_documents:
-
-            
             builder = xml_composers.IsoDocumentBuilder(yaml_doc)
             xml_tree = builder.compose_xml()
             ET.indent(xml_tree) # Beautify XML doc
@@ -36,21 +34,23 @@ def yaml_to_xml(inputfile: str, outpufolder: str):
             xml_filename = os.path.basename(inputfile)
             xml_filename = os.path.splitext(inputfile)[0]
             xml_filename = f"{yaml_doc['identifier']}.xml"
-            xml_tree.write(xml_filename)
+            xml_tree.write(f"{outpufolder}/{xml_filename}")
 
-            doc_infos.append({"identifier": yaml_doc["identifier"], "xml_file": xml_filename})
+            doc_infos.append({'identifier': yaml_doc['identifier'], 'xml_file': xml_filename, 'postponed_values': builder.postponed})
 
-    fields = ['yaml_identifier', 'xml_file']
+    fields = ['yaml_identifier', 'xml_file', 'postponed_values']
 
     rows = []
 
     for info in doc_infos:
-        rows.append([info['identifier'], info['xml_file']])
+        rows.append([info['identifier'], info['xml_file'], json.dumps(info['postponed_values'])])
 
-        outpufile = f'{outpufolder}/uuids_output_{time.strftime("%Y%m%d-%H%M%S")}.csv'
+        outpufile = f'{outpufolder}/yaml_list.csv'
 
-    with open(outpufile, 'w', encoding='utf8') as file:
+    with open(outpufile, 'w', newline='', encoding='utf8') as file:
         # using csv.writer method from CSV package
         write = csv.writer(file)
         write.writerow(fields)
         write.writerows(rows)
+
+    return builder
