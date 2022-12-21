@@ -19,7 +19,7 @@ def main():
     session = geonetwork.log_in(config.config['GEONETWORK_USER'],
                                 config.config['GEONETWORK_PASSWORD'])
 
-    yaml_to_xml.yaml_to_xml(inputfile=f"{__location__}/fixtures/instance.yaml",
+    yaml_to_xml.parse(inputfile=f"{__location__}/fixtures/instance.yaml",
                             outpufolder=f"{__location__}/fixtures/generated")
 
     _dir = f"{__location__}/fixtures/generated"
@@ -49,7 +49,9 @@ def main():
     helpers.replace_uuid(output_file, new_file)
 
     postponed_list = helpers.read_postponed_values(new_file)
-    dataset.edit_postponed_values(postponed_list, session)
+
+    for item in postponed_list:
+        dataset.edit_postponed_values(item, session)
 
 #region main entrypoint
 if __name__ == "__main__":
