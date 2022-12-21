@@ -105,43 +105,35 @@ def update(uuid_list: List[UUID],
     return response
 
 
-def edit_postponed_values(postponed_list: list, session: requests.Session=requests.Session()):
+def edit_postponed_values(postponed_values: dict, session: requests.Session=requests.Session()):
+    """Edit the postponed links between recently uploaded records
     """
-        Edit the postponed links between recently uploaded records
-        Each item in postponed_list contain its uuid, so:
-        if len(item) in postponed_list > 1:
-            there is something to edit
-    """
-    # TO REFACTOR
-    # We will edit each value separately for now
-    # but with "batch edit" API we could eventually edit all same values at once
-    # like if every instance have the "001" yaml document as a resource Lineage
-    for postponed in postponed_list:
-    # if element lenght = 1 it contains only its uuid
-        if len(postponed) > 1:
-            if 'associatedResource' in postponed.keys():
-                for associated_ressource in postponed['associatedResource']:
-                    builder = xml_composers.AssociatedRessource(
-                        value=associated_ressource['value'],
-                        typeOfAssociation=associated_ressource['typeOfAssociation']
-                    )
-                    xml_element = ET.tostring(builder.compose_xml(), encoding='unicode')
-                    for namespace, uri in xml_composers.PREFIX_MAP.items():
-                        ET.register_namespace(namespace, uri)
-                    update([postponed['uuid']],
-                            builder.parent_element_xpath,
-                            xml_element,
-                            session)
 
-            if 'resourceLineage' in postponed.keys():
-                for resource in postponed['resourceLineage']:
-                    builder = xml_composers.ResourceLineage(uuidref=resource)
-                    xml_element = ET.tostring(builder.compose_xml(), encoding='unicode')
-                    for namespace, uri in xml_composers.PREFIX_MAP.items():
-                        ET.register_namespace(namespace, uri)
-                    update([postponed['uuid']],
-                            builder.parent_element_xpath,
-                            xml_element,
-                            session)
+    geonetwork_uuid = postponed_values['uuid']
+
+    if 'associatedResource' in postponed_values.keys():
+        for associated_ressource in postponed_values['associatedResource']:
+            builder = xml_composers.AssociatedRessource(
+                value=associated_ressource['value'],
+                typeOfAssociation=associated_ressource['typeOfAssociation']
+            )
+            xml_element = ET.tostring(builder.compose_xml(), encoding='unicode')
+            for namespace, uri in xml_composers.PREFIX_MAP.items():
+                ET.register_namespace(namespace, uri)
+            update([geonetwork_uuid],
+                    builder.parent_element_xpath,
+                    xml_element,
+                    session)
+
+    if 'resourceLineage' in postponed_values.keys():
+        for resource in postponed_values['resourceLineage']:
+            builder = xml_composers.ResourceLineage(uuidref=resource)
+            xml_element = ET.tostring(builder.compose_xml(), encoding='unicode')
+            for namespace, uri in xml_composers.PREFIX_MAP.items():
+                ET.register_namespace(namespace, uri)
+            update([geonetwork_uuid],
+                    builder.parent_element_xpath,
+                    xml_element,
+                    session)
 
 # endregion
