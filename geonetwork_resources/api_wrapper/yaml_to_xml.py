@@ -9,11 +9,11 @@ import yaml
 from . import xml_composers
 
 
-def yaml_to_xml(inputfile: str, outpufolder: str):
+def parse(inputfile: str, outpufolder: str):
     """
-        Read yaml file -> Build XML record
+        Read yaml file -> Build XML record with xml_composers
         Dump result in a xml file with "xml.etree.ElementTree.write()"
-        Dump csv with yaml identifiers and corresponding xml file
+        Dump csv with yaml identifiers, corresponding xml file and postponed values
     """
 
     # Loads a dataset definition from a YAML document
@@ -36,7 +36,9 @@ def yaml_to_xml(inputfile: str, outpufolder: str):
             xml_filename = f"{yaml_doc['identifier']}.xml"
             xml_tree.write(f"{outpufolder}/{xml_filename}")
 
-            doc_infos.append({'identifier': yaml_doc['identifier'], 'xml_file': xml_filename, 'postponed_values': builder.postponed})
+            doc_infos.append({'identifier': yaml_doc['identifier'],
+                              'xml_file': xml_filename,
+                              'postponed_values': builder.postponed})
 
     fields = ['yaml_identifier', 'xml_file', 'postponed_values']
 
@@ -52,5 +54,3 @@ def yaml_to_xml(inputfile: str, outpufolder: str):
         write = csv.writer(file)
         write.writerow(fields)
         write.writerows(rows)
-
-    return builder
