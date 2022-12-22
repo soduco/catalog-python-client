@@ -1,4 +1,4 @@
-"""script to test upload and edit function"""
+"""script to test parse, upload and update_pstponed_values functions in one script"""
 
 import os
 import csv
@@ -40,14 +40,11 @@ def main():
 
         rows_to_dump.append(row)
 
-
     output_file = f"{__location__}/fixtures/generated/test.csv"
+    helpers.dump_uploaded_uuid(rows_to_dump, output_file)
 
     new_file = f"{__location__}/fixtures/generated/test2.csv"
-
-    helpers.dump_uploaded_uuid(rows_to_dump, output_file)
     helpers.replace_uuid(output_file, new_file)
-
     postponed_list = helpers.read_postponed_values(new_file)
 
     for item in postponed_list:

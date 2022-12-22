@@ -1,11 +1,12 @@
 """System module."""
-from collections import defaultdict
-import xml.etree.ElementTree as ET
-from typing import List
-import uuid
-from pydantic import BaseModel
-import yaml
 import os
+import uuid
+import xml.etree.ElementTree as ET
+from collections import defaultdict
+from typing import List
+
+import yaml
+from pydantic import BaseModel
 
 XML_TEMPLATE = os.path.dirname(__file__) + "/xmltemplates/dataset_iso19115.xml"
 
@@ -677,6 +678,9 @@ class IsoDocumentBuilder:
         """Build XML file from a yaml document"""
         xml = ET.parse(self.__class__.__template_path__)
 
+        # Register every XML namespace used in ISO19115
+        for namespace, uri in PREFIX_MAP.items():
+            ET.register_namespace(namespace, uri)
 
         # -- BLock MD_DataIdentification --
 
@@ -684,40 +688,52 @@ class IsoDocumentBuilder:
         if "title" in self.data_dict:
             title_data = self.data_dict.get("title")
             title_element = Title(title=title_data)
-            self._insert_xml(title_element.parent_element_xpath, xml, title_element.compose_xml())
+            self._insert_xml(title_element.parent_element_xpath,
+                             xml,
+                             title_element.compose_xml())
 
         # Create and insert the DATE element
         if "date" in self.data_dict:
             date_data = self.data_dict.get("date")
             for event in date_data:
                 date_element = Date(**event)
-                self._insert_xml(date_element.parent_element_xpath, xml, date_element.compose_xml())
+                self._insert_xml(date_element.parent_element_xpath,
+                                 xml,
+                                 date_element.compose_xml())
 
         # Create and insert the PRESENTATIONFORM element
         if "presentationForm" in self.data_dict:
             presentation_data = self.data_dict.get("presentationForm")
             pform_element = PresentationForm(presentationForm=presentation_data)
-            self._insert_xml(pform_element.parent_element_xpath, xml, pform_element.compose_xml())
+            self._insert_xml(pform_element.parent_element_xpath,
+                             xml,
+                             pform_element.compose_xml())
 
 
         # Create and insert the TEMPORALEXTENT element
         if "extent" in self.data_dict and "temporalExtent" in self.data_dict["extent"]:
             data = self.data_dict.get("extent")
             tempextent_element = TemporalExtent(**data["temporalExtent"])
-            self._insert_xml(tempextent_element.parent_element_xpath, xml, tempextent_element.compose_xml())
+            self._insert_xml(tempextent_element.parent_element_xpath,
+                             xml,
+                             tempextent_element.compose_xml())
 
         # Create and insert the GEOEXTENT element
         if "extent" in self.data_dict and "geoExtent" in self.data_dict["extent"]:
             data = self.data_dict.get("extent")
             geoextent_element = GeoExtent(**data["geoExtent"])
-            self._insert_xml(geoextent_element.parent_element_xpath, xml, geoextent_element.compose_xml())
+            self._insert_xml(geoextent_element.parent_element_xpath,
+                             xml,
+                             geoextent_element.compose_xml())
 
         # Create and insert the KEYWORD elements
         if "keywords" in self.data_dict:
             data = self.data_dict.get("keywords")
             for keyword in data:
                 keyword_element = Keyword(**keyword)
-                self._insert_xml(keyword_element.parent_element_xpath, xml, keyword_element.compose_xml())
+                self._insert_xml(keyword_element.parent_element_xpath,
+                                 xml,
+                                 keyword_element.compose_xml())
 
         # Create and insert the ASSOCIATEDRESSOURCE elements
         if "associatedResource" in self.data_dict:
@@ -725,7 +741,9 @@ class IsoDocumentBuilder:
             for resource in data:
                 if self._is_valid_uuid(resource["value"]):
                     associated_resource_element = AssociatedRessource(**resource)
-                    self._insert_xml(associated_resource_element.parent_element_xpath, xml, associated_resource_element.compose_xml())
+                    self._insert_xml(associated_resource_element.parent_element_xpath,
+                                     xml,
+                                     associated_resource_element.compose_xml())
                 else:
                     self.postponed["associatedResource"].append(resource)
 
@@ -734,13 +752,17 @@ class IsoDocumentBuilder:
             data = self.data_dict.get("stakeholders")
             for stakeholder in data:
                 stakeholder_element = Stakeholders(**stakeholder)
-                self._insert_xml(stakeholder_element.parent_element_xpath, xml, stakeholder_element.compose_xml())
+                self._insert_xml(stakeholder_element.parent_element_xpath,
+                                 xml,
+                                 stakeholder_element.compose_xml())
 
         # Create and insert the OVERVIEW element
         if "overview" in self.data_dict:
             url_data = self.data_dict.get("overview")
             overview_element = Overview(url=url_data)
-            self._insert_xml(overview_element.parent_element_xpath, xml, overview_element.compose_xml())
+            self._insert_xml(overview_element.parent_element_xpath,
+                             xml,
+                             overview_element.compose_xml())
 
 
         # -- BLock MD_Distribution --
@@ -750,7 +772,9 @@ class IsoDocumentBuilder:
             data = self.data_dict.get("distributionInfo")
             for distribution in data:
                 distribution_info_element = DistributionInfo(**distribution)
-                self._insert_xml(distribution_info_element.parent_element_xpath, xml, distribution_info_element.compose_xml())
+                self._insert_xml(distribution_info_element.parent_element_xpath,
+                                 xml,
+                                 distribution_info_element.compose_xml())
 
 
         # -- BLock resourceLineage --
@@ -761,14 +785,9 @@ class IsoDocumentBuilder:
             for relation in relations:
                 if self._is_valid_uuid(relation):
                     resource_info_element = ResourceLineage(uuidref=relation)
-                    self._insert_xml(resource_info_element.parent_element_xpath, xml, resource_info_element.compose_xml())
+                    self._insert_xml(resource_info_element.parent_element_xpath,
+                                     xml, resource_info_element.compose_xml())
                 else:
                     self.postponed["resourceLineage"].append(relation)
-
-
-        # Register every XML namespace used in ISO19115
-        for namespace, uri in PREFIX_MAP.items():
-            ET.register_namespace(namespace, uri)
-
 
         return xml

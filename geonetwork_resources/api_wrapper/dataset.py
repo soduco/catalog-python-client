@@ -18,8 +18,8 @@ from . import config, helpers, xml_composers
 #region DELETE
 
 def delete(uuid_list: List[UUID],
-           backup_records: bool=True,
-           session: requests.Session=requests.session()):
+           session: requests.Session=requests.session(),
+           backup_records: bool=True):
     """ delete one or more records from their uuid """
     # TODO : ensure that the session is "logged in" ?
     token = session.cookies.get_dict().get('XSRF-TOKEN')
@@ -45,7 +45,10 @@ def upload(xml: ET.ElementTree, session: requests.Session=requests.Session()):
     # TODO : ensure that the session is "logged in" ?
     token = session.cookies.get_dict().get('XSRF-TOKEN')
 
+    for namespace, uri in xml_composers.PREFIX_MAP.items():
+        ET.register_namespace(namespace, uri)
     xml_string = helpers.xml_to_utf8string(xml)
+
     headers= {
         'X-XSRF-TOKEN': token,
         'accept': 'application/json',
@@ -54,6 +57,7 @@ def upload(xml: ET.ElementTree, session: requests.Session=requests.Session()):
     payload = xml_string
     response = session.put(config.api_route_records, headers=headers, data=payload)
     response.raise_for_status()
+
     return response
 
 # endregion
@@ -117,9 +121,9 @@ def edit_postponed_values(postponed_values: dict, session: requests.Session=requ
                 value=associated_ressource['value'],
                 typeOfAssociation=associated_ressource['typeOfAssociation']
             )
-            xml_element = ET.tostring(builder.compose_xml(), encoding='unicode')
             for namespace, uri in xml_composers.PREFIX_MAP.items():
                 ET.register_namespace(namespace, uri)
+            xml_element = ET.tostring(builder.compose_xml(), encoding='unicode')
             update([geonetwork_uuid],
                     builder.parent_element_xpath,
                     xml_element,
@@ -128,9 +132,9 @@ def edit_postponed_values(postponed_values: dict, session: requests.Session=requ
     if 'resourceLineage' in postponed_values.keys():
         for resource in postponed_values['resourceLineage']:
             builder = xml_composers.ResourceLineage(uuidref=resource)
-            xml_element = ET.tostring(builder.compose_xml(), encoding='unicode')
             for namespace, uri in xml_composers.PREFIX_MAP.items():
                 ET.register_namespace(namespace, uri)
+            xml_element = ET.tostring(builder.compose_xml(), encoding='unicode')
             update([geonetwork_uuid],
                     builder.parent_element_xpath,
                     xml_element,

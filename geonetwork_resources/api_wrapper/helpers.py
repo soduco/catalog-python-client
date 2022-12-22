@@ -128,7 +128,7 @@ def replace_uuid(csv_file: str, output_file: str):
         reader = csv.DictReader(csvfile)
         fieldnames = ['yaml_identifier', 'geonetwork_uuid', 'xml_file', 'postponed_values']
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-        
+
         for row in reader:
             postponed_list.append(row)
 
@@ -141,9 +141,10 @@ def replace_uuid(csv_file: str, output_file: str):
                     ressource['value'] = return_uuid(postponed_list, ressource['value'])
             if 'resourceLineage' in postponed_values.keys():
                 for index, ressource in enumerate(postponed_values['resourceLineage']):
-                    postponed_values['resourceLineage'][index] = return_uuid(postponed_list, ressource)
+                    postponed_values['resourceLineage'][index] = return_uuid(postponed_list,
+                                                                             ressource)
             postponed['postponed_values'] = json.dumps(postponed_values)
-            
+
     with open(output_file, 'w', newline='', encoding='utf8') as output_file:
         fieldnames = ['yaml_identifier', 'geonetwork_uuid', 'xml_file', 'postponed_values']
         writer = csv.DictWriter(output_file, fieldnames=fieldnames)
@@ -177,7 +178,7 @@ def dump_uploaded_uuid(csv_dump: List[dict], output_file: str):
     # uuids_output_{time.strftime("%Y%m%d-%H%M%S")}
 
 def read_postponed_values(csv_file: str) -> list:
-    """Return a list of values to edit from a csv
+    """Take a csv in input and return a list of dictionnaries containing records to edit
     """
     with open(csv_file, encoding='utf8') as csvfile:
         reader = csv.DictReader(csvfile)
