@@ -141,6 +141,8 @@ distributionInfo:
                 protocol: ""
                 name: ""
                 typeOfTransferOption: ""
+resourceLineage: 
+    - "002" 
 stakeholders:
     -
         role: "originator"

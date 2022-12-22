@@ -16,3 +16,10 @@ click = "^8.1.3"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.scripts]
+parse_document = "geonetwork_resources.cli.parse:parse"
+upload_records = "geonetwork_resources.cli.upload:upload"
+update_records = "geonetwork_resources.cli.update:update"
+update_postponed_values = "geonetwork_resources.cli.update:update_postponed_values"
+delete_records = "geonetwork_resources.cli.delete:delete"

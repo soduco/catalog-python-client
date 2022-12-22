@@ -1,26 +1,26 @@
-def main():
+"""CLI module to call delete function from dataset module
+"""
+
+import click
+from geonetwork_resources.api_wrapper import (config, dataset, geonetwork,
+                                              helpers)
+
+
+@click.command()
+@click.argument('input_csv_file', type=click.Path(exists=True))
+
+def delete(input_csv_file):
     """
-        read arguments to choose wich script to execute
+    Needs 1 argument:
+
+    - A csv file with a column "geonetwork_uuid" with uuids to delete
     """
-    parser = argparse.ArgumentParser(description='Upload records from a YAML file')
-    parser.add_argument("-i", dest="inputfile",
-                        help='delete records from a csv file, with uuid(s) to delete on second column',
-                        metavar="INPUT FILE",
-                        type=lambda x: helpers.is_valid_file(parser, x))
-    parser.add_argument("-l", dest="uuidList",
-                        default=None,
-                        help='delete records from a uuid list, in string format and separated by comma',
-                        metavar="UUID LIST")
 
-    args = parser.parse_args()
+    session = geonetwork.log_in(config.config['GEONETWORK_USER'],
+                                config.config['GEONETWORK_PASSWORD'])
 
-    if not (args.inputfile or args.uuidList):
-        parser.error('No action requested, add -i or -l')
+    uuid_list = helpers.uuid_list_from_csv(input_csv_file)
 
-    # WIP
-    # Must then call other functions to delete files
+    response = dataset.delete(uuid_list, session).json()
 
-#region main entrypoint
-if __name__ == "__main__":
-    main()
-#endregion
+    print(response)
