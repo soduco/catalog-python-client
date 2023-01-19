@@ -12,10 +12,9 @@ from geonetwork_resources.api_wrapper import (config, dataset, geonetwork,
 
 @click.command()
 @click.argument('csv_file', type=click.Path(exists=True))
-@click.argument('output_file', type=click.Path(exists=False))
 
 
-def upload(csv_file, output_file):
+def upload(csv_file):
     """
     Needs 1 arguments:
 
@@ -41,6 +40,5 @@ def upload(csv_file, output_file):
 
         print(json_response)
 
-    # TODO Change writing/reading csv comportement.
     helpers.dump_uploaded_uuid(rows_to_dump, temp_file)
-    helpers.replace_uuid(temp_file, output_file)
+    helpers.replace_uuid(temp_file, csv_file)
