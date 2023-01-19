@@ -3,7 +3,7 @@
 import os
 import csv
 
-from geonetwork_resources.api_wrapper import (config, dataset, geonetwork,
+from soduco_geonetwork.api_wrapper import (config, dataset, geonetwork,
                                               yaml_to_xml, helpers)
 
 __location__ = os.path.realpath(
