@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "geonetwork_resources"
+name = "soduco_geonetwork"
 version = "0.1.0"
 description = ""
 authors = []
