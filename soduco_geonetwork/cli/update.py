@@ -2,7 +2,7 @@
 """
 
 import click
-from geonetwork_resources.api_wrapper import (config, dataset, geonetwork,
+from soduco_geonetwork.api_wrapper import (config, dataset, geonetwork,
                                               helpers)
 
 

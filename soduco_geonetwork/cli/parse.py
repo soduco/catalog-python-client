@@ -2,7 +2,7 @@
 """
 
 import click
-from geonetwork_resources.api_wrapper import yaml_to_xml
+from soduco_geonetwork.api_wrapper import yaml_to_xml
 
 
 @click.command()
