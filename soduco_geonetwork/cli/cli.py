@@ -9,14 +9,9 @@ from soduco_geonetwork.api_wrapper import (config, dataset, geonetwork,
 
 
 @click.group()
-@click.option('--debug/--no-debug', default=False)
-@click.pass_context
-def cli(ctx, debug):
-    # ensure that ctx.obj exists and is a dict (in case `cli()` is called
-    # by means other than the `if` block below)
-    ctx.ensure_object(dict)
-
-    ctx.obj['DEBUG'] = debug
+def cli():
+    """Main function
+    """
 
 
 @cli.command()
@@ -35,7 +30,6 @@ def parse(input_yaml_file, output_folder):
 
 
 @cli.command()
-@click.pass_context
 @click.argument('csv_file', type=click.Path(exists=True))
 def upload(csv_file):
     """
@@ -68,7 +62,6 @@ def upload(csv_file):
 
 
 @cli.command()
-@click.pass_context
 @click.argument('input_csv_file', type=click.Path(exists=True))
 @click.argument('edition_location', type=str)
 @click.argument('xml_patch', type=str)
@@ -93,7 +86,6 @@ def update(input_csv_file, edition_location, xml_patch):
 
 
 @cli.command()
-@click.pass_context
 @click.argument('csv_postponed_values', type=click.Path(exists=True))
 def update_postponed_values(csv_postponed_values):
     """Edit the postponed links between uploaded records
@@ -112,8 +104,6 @@ def update_postponed_values(csv_postponed_values):
 
 
 @cli.command()
-@click.pass_context
-@click.pass_context
 @click.argument('input_csv_file', type=click.Path(exists=True))
 def delete(input_csv_file):
     """
@@ -132,4 +122,4 @@ def delete(input_csv_file):
     print(response)
 
 if __name__ == '__main__':
-    cli(obj={})
+    cli()
