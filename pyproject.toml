@@ -18,8 +18,4 @@ requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.scripts]
-parse_document = "soduco_geonetwork.cli.parse:parse"
-upload_records = "soduco_geonetwork.cli.upload:upload"
-update_records = "soduco_geonetwork.cli.update:update"
-update_postponed_values = "soduco_geonetwork.cli.update:update_postponed_values"
-delete_records = "soduco_geonetwork.cli.delete:delete"
+soduco_geonetwork_cli = "soduco_geonetwork.cli.cli:cli"
