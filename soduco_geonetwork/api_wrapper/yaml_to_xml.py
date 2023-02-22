@@ -1,11 +1,13 @@
 """Script that build xml records from yaml documents
 """
 
-import os
-import xml.etree.ElementTree as ET
 import csv
 import json
+import os
+import xml.etree.ElementTree as ET
+
 import yaml
+
 from . import xml_composers
 
 

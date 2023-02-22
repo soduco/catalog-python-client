@@ -3,6 +3,7 @@
 
 import click
 import csv
+import tempfile
 import os
 from soduco_geonetwork.api_wrapper import (config, dataset, geonetwork,
                                               helpers, yaml_to_xml)
@@ -15,17 +16,25 @@ def cli():
 
 
 @cli.command()
-@click.pass_context
 @click.argument('input_yaml_file', type=click.Path(exists=True))
-@click.argument('output_folder', type=click.Path(exists=True))
+@click.option('--output_folder')
 def parse(input_yaml_file, output_folder):
     """
-    Needs 2 arguments:
+    Needs 1 arguments:
 
-    - A yaml file with one or more documents to parse to xml
-
-    - A folder to save the xml files generated and a csv with info on files generated
+    - A yaml file with one or more documents to parse to xml (dumped in tmp folder by default)
     """
+
+    if output_folder is None:
+        output_folder = tempfile.mkdtemp()
+        print('folder ' + output_folder + ' created. Parsing YAML file.')
+    else:
+        if not os.path.exists(output_folder):
+            os.makedirs(output_folder)
+            print('folder ' + output_folder + ' created. Parsing YAML file.')
+        else:
+            print('folder ' + output_folder + ' already present. Parsing YAML file.')
+
     yaml_to_xml.parse(input_yaml_file, output_folder)
 
 
