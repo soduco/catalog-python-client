@@ -1,11 +1,11 @@
 """Load .env values
 """
 
-from dotenv import dotenv_values
+from dotenv import dotenv_values, find_dotenv
 
 config = {
-    **dotenv_values(".env"),  # load shared environment variables
-    # **os.environ,  # override loaded values with environment variables
+    **dotenv_values(find_dotenv(".env.shared")),
+    **dotenv_values(find_dotenv(".env.secret")),
 }
 
 api_route_me = config["GEONETWORK"] + config["API_PATH"] + "/me"
