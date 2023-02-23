@@ -71,3 +71,4 @@ def test_parse_document_creates_nonempty_readable_tmpfile():
     yaml_file = os.getcwd() + "/yaml_list.csv"
     assert os.path.exists(yaml_file)
     assert open(yaml_file, "r", encoding='utf8').read()
+    os.unlink(yaml_file)
