@@ -37,6 +37,7 @@ def parse(input_yaml_file, output_folder):
 
     yaml_to_xml.parse(input_yaml_file, output_folder)
 
+    print('yaml_list dumped in current folder : ' + os.getcwd())
 
 @cli.command()
 @click.argument('csv_file', type=click.Path(exists=True))
