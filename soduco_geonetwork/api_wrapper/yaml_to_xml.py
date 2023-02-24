@@ -30,25 +30,20 @@ def parse(input_file: str, output_folder: str):
             xml_tree = builder.compose_xml()
             ET.indent(xml_tree) # Beautify XML doc
 
-            # we strip the input filename of it's path and extension
-            # and add a number to form the xml filename
-            # ex : fixtures/instance.yaml -> instance_01.xml
-            xml_filename = os.path.basename(input_file)
-            xml_filename = os.path.splitext(input_file)[0]
-            xml_filename = f"{yaml_doc['identifier']}.xml"
-            xml_tree.write(f"{output_folder}/{xml_filename}")
+            xml_file_path = f"{output_folder}/{yaml_doc['identifier']}.xml"
+            xml_tree.write(xml_file_path)
 
             doc_infos.append({'identifier': yaml_doc['identifier'],
-                              'xml_file': xml_filename,
+                              'xml_file_path': xml_file_path,
                               'postponed_values': builder.postponed})
 
-    fields = ['yaml_identifier', 'xml_file', 'postponed_values']
+    fields = ['yaml_identifier', 'xml_file_path', 'postponed_values']
 
     rows = []
 
     # We dump the yaml list in the current folder
     for info in doc_infos:
-        rows.append([info['identifier'], info['xml_file'], json.dumps(info['postponed_values'])])
+        rows.append([info['identifier'], info['xml_file_path'], json.dumps(info['postponed_values'])])
         output_file = f'{os.getcwd()}/yaml_list.csv'
 
     with open(output_file, 'w', newline='', encoding='utf8') as file:
