@@ -64,10 +64,8 @@ def test_parse_document_expect_arguments():
         subprocess.run([MAIN_COMMAND, PARSE_DOCUMENT], check=True)
 
 
-def test_parse_document_creates_nonempty_readable_tmpfile():
-    odir = tempfile.gettempdir()
-    subprocess.run([MAIN_COMMAND, PARSE_DOCUMENT, sample_records,
-                   "--output_folder", odir], check=True)
+def test_parse_document_creates_nonempty_readable_tmpfile_in_current_folder():
+    subprocess.run([MAIN_COMMAND, PARSE_DOCUMENT, sample_records], check=True)
     yaml_file = os.getcwd() + "/yaml_list.csv"
     assert os.path.exists(yaml_file)
     assert open(yaml_file, "r", encoding='utf8').read()
