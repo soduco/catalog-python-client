@@ -1,19 +1,27 @@
 """CLI module to call delete function from dataset module
 """
 
-import click
 import csv
-import tempfile
 import os
+import tempfile
+
+import click
 from soduco_geonetwork.api_wrapper import (config, dataset, geonetwork,
-                                              helpers, yaml_to_xml)
+                                           helpers, yaml_to_xml)
 
 
 @click.group()
 def cli():
     """Main function
     """
+    values_that_must_be_present = ["GEONETWORK", "API_PATH",
+                                   "GEONETWORK_USER", "GEONETWORK_PASSWORD"]
 
+    for value in values_that_must_be_present:
+        if (value in config.config and config.config[value] is not None):
+            pass
+        else:
+            raise AssertionError("Environment value SECRET not set.")
 
 @cli.command()
 @click.argument('input_yaml_file', type=click.Path(exists=True))
@@ -24,6 +32,9 @@ def parse(input_yaml_file, output_folder):
 
     - A yaml file with one or more documents to parse to xml (dumped in tmp folder by default)
     """
+
+    if not input_yaml_file.endswith(('.yml', '.yaml')):
+        raise ValueError("Not a yaml file")
 
     if output_folder is None:
         output_folder = tempfile.mkdtemp()
