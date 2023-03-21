@@ -14,6 +14,7 @@ from soduco_geonetwork.api_wrapper import (config, dataset, geonetwork,
 def cli():
     """Main function
     """
+    # Doesn't work. Click doesn't execute this code.
     values_that_must_be_present = ["GEONETWORK", "API_PATH",
                                    "GEONETWORK_USER", "GEONETWORK_PASSWORD"]
 
@@ -50,6 +51,10 @@ def parse(input_yaml_file, output_folder):
 
     print('yaml_list dumped in current folder : ' + os.getcwd())
 
+
+# For now it creates a temp file with UUID returned from the upload to Geonetwork
+# Then update the csv given as argument
+# TO DO : work only in csv given as argument
 @cli.command()
 @click.argument('csv_file', type=click.Path(exists=True))
 def upload(csv_file):
