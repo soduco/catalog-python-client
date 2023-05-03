@@ -86,11 +86,10 @@ def test_fail_without_secret():
     """
     Must fail without a ``SECRET`` environment variable specified
     """
-    message_regex = r".* SECRET not set. .*"
     with EnvironContext(GEONETWORK_USER=None, GEONETWORK_PASSWORD=None):
-        results = CliRunner().invoke(cli.parse, ["whatever"])
-        print("Exit code: ", results.exit_code)
-        assert results.exit_code != 0
+        results = CliRunner().invoke(cli.cli, ["parse"], catch_exceptions=True)
+        raised = results.exception
+        assert raised and "Missing expected ENV variables" in str(raised)
 
 
 # ===
