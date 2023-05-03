@@ -4,8 +4,8 @@
 from dotenv import dotenv_values, find_dotenv
 
 config = {
-    **dotenv_values(find_dotenv(".env.shared")),
-    **dotenv_values(find_dotenv(".env.secret")),
+    **dotenv_values(find_dotenv(".env.shared", usecwd=True)),
+    **dotenv_values(find_dotenv(".env.secret", usecwd=True)),
 }
 
 api_route_me = config["GEONETWORK"] + config["API_PATH"] + "/me"
