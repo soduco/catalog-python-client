@@ -1,9 +1,22 @@
 [tool.poetry]
 name = "soduco_geonetwork"
 version = "0.1.0a"
-description = ""
-authors = []
+description = "A python wrapper to use Geonetwork API"
+license = "LGPL-3.0-or-later"
+authors = [
+    "Dumenieu Bertrand <bertrand.dumenieu@ehess.fr>",
+    "Hersent Melvin <melvin.hersent@ign.fr>",
+    "Perret Julien <julien.perret@ign.fr>"
+]
 readme = "README.md"
+keywords = ["Geonetwork", "API"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: GNU Lesser General Public License v3 or later (LGPLv3+)",
+    "Operating System :: OS Independent",
+    "Topic :: Scientific/Engineering :: GIS"
+]
 
 [tool.poetry.dependencies]
 python = "^3.8"
