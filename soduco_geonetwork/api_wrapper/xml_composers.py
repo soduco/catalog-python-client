@@ -1,12 +1,11 @@
 """System module."""
 import os
 import uuid
-import xml.etree.ElementTree as ET
-from collections import defaultdict
-from typing import List
-
 import yaml
+import xml.etree.ElementTree as ET
+from typing import List, Optional
 from pydantic import BaseModel
+from collections import defaultdict
 
 XML_TEMPLATE = os.path.dirname(__file__) + "/xmltemplates/dataset_iso19115.xml"
 
@@ -84,7 +83,7 @@ PREFIX_MAP = {
     "gco": GCO,
     "gml": GML,
     "xlink": XLINK,
-    "xsi": XSI
+    "xsi": XSI,
 }
 
 
@@ -151,7 +150,6 @@ class Date(BaseModel):
     event: str
     parent_element_xpath = ".//mri:MD_DataIdentification/mri:citation/cit:CI_Citation"
 
-
     def compose_xml(self):
         """Compose XML elements"""
         xml = ET.Element(f"{{{CIT}}}date")
@@ -161,10 +159,14 @@ class Date(BaseModel):
         gco_date.text = self.value
 
         cit_datetype = ET.SubElement(cit_ci_date, f"{{{CIT}}}dateType")
-        ET.SubElement(cit_datetype, f"{{{CIT}}}CI_DateTypeCode", attrib={
-            "codeList": "http://standards.iso.org/iso/19115/resources/Codelists/cat/codelists.xml#CI_DateTypeCode",
-            "codeListValue": self.event
-        })
+        ET.SubElement(
+            cit_datetype,
+            f"{{{CIT}}}CI_DateTypeCode",
+            attrib={
+                "codeList": "http://standards.iso.org/iso/19115/resources/Codelists/cat/codelists.xml#CI_DateTypeCode",
+                "codeListValue": self.event,
+            },
+        )
         return xml
 
 
@@ -190,12 +192,17 @@ class PresentationForm(BaseModel):
     def compose_xml(self):
         """Compose XML elements"""
         xml = ET.Element(f"{{{CIT}}}presentationForm")
-        ET.SubElement(xml, f"{{{CIT}}}CI_PresentationFormCode", attrib={
-            "codeList": "http://standards.iso.org/iso/19115/resources/Codelists/cat/codelists.xml#CI_PresentationFormCode",
-            "codeListValue": self.presentationForm
-        })
+        ET.SubElement(
+            xml,
+            f"{{{CIT}}}CI_PresentationFormCode",
+            attrib={
+                "codeList": "http://standards.iso.org/iso/19115/resources/Codelists/cat/codelists.xml#CI_PresentationFormCode",
+                "codeListValue": self.presentationForm,
+            },
+        )
 
         return xml
+
 
 class TemporalExtent(BaseModel):
     """
@@ -230,23 +237,25 @@ class TemporalExtent(BaseModel):
     endPosition: str
     parent_element_xpath = ".//mri:MD_DataIdentification"
 
-
     def compose_xml(self):
         """Compose XML elements"""
         xml = ET.Element(f"{{{MRI}}}extent")
         ex_extent = ET.SubElement(xml, f"{{{GEX}}}EX_Extent")
         gex_temporal_element = ET.SubElement(ex_extent, f"{{{GEX}}}temporalElement")
-        gex_temporal_extent = ET.SubElement(gex_temporal_element, f"{{{GEX}}}EX_TemporalExtent")
+        gex_temporal_extent = ET.SubElement(
+            gex_temporal_element, f"{{{GEX}}}EX_TemporalExtent"
+        )
         gex_extent = ET.SubElement(gex_temporal_extent, f"{{{GEX}}}extent")
-        gml_time_period = ET.SubElement(gex_extent, f"{{{GML}}}TimePeriod", attrib={
-            f"{{{GML}}}id": "A1234"
-        })
+        gml_time_period = ET.SubElement(
+            gex_extent, f"{{{GML}}}TimePeriod", attrib={f"{{{GML}}}id": "A1234"}
+        )
         gml_begin_position = ET.SubElement(gml_time_period, f"{{{GML}}}beginPosition")
         gml_end_position = ET.SubElement(gml_time_period, f"{{{GML}}}endPosition")
         gml_begin_position.text = self.beginPosition
         gml_end_position.text = self.endPosition
 
         return xml
+
 
 class GeoExtent(BaseModel):
     """
@@ -285,7 +294,6 @@ class GeoExtent(BaseModel):
     northBoundLatitude: str
     parent_element_xpath = ".//mri:MD_DataIdentification"
 
-
     def compose_xml(self):
         """Compose XML elements"""
         xml = ET.Element(f"{{{MRI}}}extent")
@@ -297,9 +305,7 @@ class GeoExtent(BaseModel):
         gex_west_bound_longitude = ET.SubElement(
             gex_geographic_bounding_box, f"{{{GEX}}}westBoundLongitude"
         )
-        gco_west_value = ET.SubElement(
-            gex_west_bound_longitude, f"{{{GCO}}}Decimal"
-        )
+        gco_west_value = ET.SubElement(gex_west_bound_longitude, f"{{{GCO}}}Decimal")
         gco_west_value.text = self.westBoundLongitude
         gex_east_bound_longitude = ET.SubElement(
             gex_geographic_bounding_box, f"{{{GEX}}}eastBoundLongitude"
@@ -318,6 +324,7 @@ class GeoExtent(BaseModel):
         gco_north_value.text = self.northBoundLatitude
 
         return xml
+
 
 class Keyword(BaseModel):
     """
@@ -347,7 +354,6 @@ class Keyword(BaseModel):
     typeOfKeyword: str
     parent_element_xpath = ".//mri:MD_DataIdentification"
 
-
     def compose_xml(self):
         """Compose XML elements"""
         xml = ET.Element(f"{{{MRI}}}descriptiveKeywords")
@@ -356,12 +362,17 @@ class Keyword(BaseModel):
         gco_character_string = ET.SubElement(mri_keyword, f"{{{GCO}}}CharacterString")
         gco_character_string.text = self.value
         mri_type = ET.SubElement(mri_md_keywords, f"{{{MRI}}}type")
-        ET.SubElement(mri_type, f"{{{MRI}}}MD_KeywordTypeCode", attrib={
-            "codeList": "http://standards.iso.org/iso/19115/resources/Codelists/cat/codelists.xml#MD_KeywordTypeCode",
-            "codeListValue": self.typeOfKeyword
-        })
+        ET.SubElement(
+            mri_type,
+            f"{{{MRI}}}MD_KeywordTypeCode",
+            attrib={
+                "codeList": "http://standards.iso.org/iso/19115/resources/Codelists/cat/codelists.xml#MD_KeywordTypeCode",
+                "codeListValue": self.typeOfKeyword,
+            },
+        )
 
         return xml
+
 
 class AssociatedRessource(BaseModel):
     """
@@ -392,22 +403,32 @@ class AssociatedRessource(BaseModel):
     typeOfAssociation: str
     parent_element_xpath = ".//mdb:identificationInfo"
 
-
     def compose_xml(self):
         """Compose XML elements"""
         xml = ET.Element(f"{{{MRI}}}MD_DataIdentification")
         mri_md_data_identification = ET.SubElement(xml, f"{{{MRI}}}associatedResource")
-        mri_associated_resource = ET.SubElement(mri_md_data_identification, f"{{{MRI}}}MD_AssociatedResource")
-        mri_md_associated_resource = ET.SubElement(mri_associated_resource, f"{{{MRI}}}associationType")
-        ET.SubElement(mri_md_associated_resource, f"{{{MRI}}}DS_AssociationTypeCode", attrib={
-            "codeList": "http://standards.iso.org/iso/19115/resources/Codelists/cat/codelists.xml#DS_AssociationTypeCode",
-            "codeListValue": self.typeOfAssociation
-        })
-        ET.SubElement(mri_associated_resource, f"{{{MRI}}}metadataReference", attrib={
-            "uuidref": self.value
-        })
+        mri_associated_resource = ET.SubElement(
+            mri_md_data_identification, f"{{{MRI}}}MD_AssociatedResource"
+        )
+        mri_md_associated_resource = ET.SubElement(
+            mri_associated_resource, f"{{{MRI}}}associationType"
+        )
+        ET.SubElement(
+            mri_md_associated_resource,
+            f"{{{MRI}}}DS_AssociationTypeCode",
+            attrib={
+                "codeList": "http://standards.iso.org/iso/19115/resources/Codelists/cat/codelists.xml#DS_AssociationTypeCode",
+                "codeListValue": self.typeOfAssociation,
+            },
+        )
+        ET.SubElement(
+            mri_associated_resource,
+            f"{{{MRI}}}metadataReference",
+            attrib={"uuidref": self.value},
+        )
 
         return xml
+
 
 class DistributionInfo(BaseModel):
     """
@@ -430,18 +451,18 @@ class DistributionInfo(BaseModel):
                     <mrd:onLine>
                         <cit:CI_OnlineResource>
                             <cit:linkage>
-                                <gco:CharacterString>{transferOptions_linkage}</gco:CharacterString>
+                                <gco:CharacterString>{onlineResources_linkage}</gco:CharacterString>
                             </cit:linkage>
                             <cit:protocol>
-                                <gco:CharacterString>{transferOptions_protocol}</gco:CharacterString>
+                                <gco:CharacterString>{onlineResources_protocol}</gco:CharacterString>
                             </cit:protocol>
                             <cit:name>
-                                <gco:CharacterString>{transferOptions_name}</gco:CharacterString>
+                                <gco:CharacterString>{onlineResources_name}</gco:CharacterString>
                             </cit:name>
                             <cit:function>
                                 <cit:CI_OnLineFunctionCode
                                     codeList="http://standards.iso.org/iso/19115/resources/Codelists/cat/codelists.xml#CI_OnLineFunctionCode"
-                                    codeListValue="{transferOptions_typeOfTransferOption}"
+                                    codeListValue="{onlineResources_typeOfTransferOption}"
                                 />
                             </cit:function>
                         </cit:CI_OnlineResource>
@@ -459,8 +480,9 @@ class DistributionInfo(BaseModel):
         _type_: _description_
     """
 
-    distributionFormat: str
-    transferOptions: list
+    distributionFormat: Optional[str]
+    onlineResources: list = []
+    # transferOptions: list  # FIXME Replaced by onlineResources ?
     parent_element_xpath = ".//mri:MD_DataIdentification"
     # In transferOptions:
     # - linkage
@@ -468,17 +490,18 @@ class DistributionInfo(BaseModel):
     # - name
     # - typeOfTransferOption
 
-
     def compose_xml(self):
         """Compose XML elements"""
         xml = ET.Element(f"{{{MRD}}}MD_Distribution")
         mrd_distribution_format = ET.SubElement(xml, f"{{{MRD}}}distributionFormat")
         mrd_md_format = ET.SubElement(mrd_distribution_format, f"{{{MRD}}}MD_Format")
-        mrd_format_specification_citation = ET. SubElement(
+        mrd_format_specification_citation = ET.SubElement(
             mrd_md_format, f"{{{MRD}}}formatSpecificationCitation"
         )
 
-        cit_ci_citation = ET.SubElement(mrd_format_specification_citation, f"{{{CIT}}}CI_Citation")
+        cit_ci_citation = ET.SubElement(
+            mrd_format_specification_citation, f"{{{CIT}}}CI_Citation"
+        )
         cit_title = ET.SubElement(cit_ci_citation, f"{{{CIT}}}title")
         gco_character_string = ET.SubElement(cit_title, f"{{{GCO}}}CharacterString")
         gco_character_string.text = self.distributionFormat
@@ -487,29 +510,46 @@ class DistributionInfo(BaseModel):
         mrd_md_digital_transfer_options = ET.SubElement(
             mrd_transfer_options, f"{{{MRD}}}MD_DigitalTransferOptions"
         )
-        mrd_online = ET.SubElement(mrd_md_digital_transfer_options, f"{{{MRD}}}onLine")
-        cit_ci_online_resource = ET.SubElement(mrd_online, f"{{{CIT}}}CI_OnlineResource")
 
-        for transfer_option in self.transferOptions:
+        # Insert links to related online resources (WMS layers, images, websites and so on)
+        for online_resource in self.onlineResources:
+            mrd_online = ET.SubElement(
+                mrd_md_digital_transfer_options, f"{{{MRD}}}onLine"
+            )
+            cit_ci_online_resource = ET.SubElement(
+                mrd_online, f"{{{CIT}}}CI_OnlineResource"
+            )
+
             cit_linkage = ET.SubElement(cit_ci_online_resource, f"{{{CIT}}}linkage")
-            linkage_gco_character_string = ET.SubElement(cit_linkage, f"{{{GCO}}}CharacterString")
-            linkage_gco_character_string.text = transfer_option["linkage"]
+            linkage_gco_character_string = ET.SubElement(
+                cit_linkage, f"{{{GCO}}}CharacterString"
+            )
+            linkage_gco_character_string.text = online_resource["linkage"]
 
             cit_protocol = ET.SubElement(cit_ci_online_resource, f"{{{CIT}}}protocol")
-            protocol_gco_character_string = ET.SubElement(cit_protocol, f"{{{GCO}}}CharacterString")
-            protocol_gco_character_string.text = transfer_option["protocol"]
+            protocol_gco_character_string = ET.SubElement(
+                cit_protocol, f"{{{GCO}}}CharacterString"
+            )
+            protocol_gco_character_string.text = online_resource["protocol"]
 
             cit_name = ET.SubElement(cit_ci_online_resource, f"{{{CIT}}}name")
-            name_gco_character_string = ET.SubElement(cit_name, f"{{{GCO}}}CharacterString")
-            name_gco_character_string.text = transfer_option["name"]
-
-            cit_function = ET.SubElement(cit_ci_online_resource, f"{{{CIT}}}function")
-            cit_ci_online_function_code = ET.SubElement(
-                cit_function, f"{{{CIT}}}CI_OnLineFunctionCode"
+            name_gco_character_string = ET.SubElement(
+                cit_name, f"{{{GCO}}}CharacterString"
             )
-            cit_ci_online_function_code.text = transfer_option["typeOfTransferOption"]
+            name_gco_character_string.text = online_resource["name"]
+
+            online_function_code = online_resource["onlineFunctionCode"]
+            if online_function_code:
+                cit_function = ET.SubElement(
+                    cit_ci_online_resource, f"{{{CIT}}}function"
+                )
+                cit_ci_online_function_code = ET.SubElement(
+                    cit_function, f"{{{CIT}}}CI_OnLineFunctionCode"
+                )
+                cit_ci_online_function_code.text = online_function_code
 
         return xml
+
 
 class ResourceLineage(BaseModel):
     """
@@ -538,11 +578,10 @@ class ResourceLineage(BaseModel):
     def compose_xml(self):
         """Compose XML elements"""
         xml = ET.Element(f"{{{MRL}}}LI_Lineage")
-        ET.SubElement(xml, f"{{{MRL}}}source", attrib={
-            "uuidref": self.uuidref
-        })
+        ET.SubElement(xml, f"{{{MRL}}}source", attrib={"uuidref": self.uuidref})
 
         return xml
+
 
 class Stakeholders(BaseModel):
     """
@@ -577,16 +616,19 @@ class Stakeholders(BaseModel):
     name: str
     parent_element_xpath = ".//mdb:identificationInfo/mri:MD_DataIdentification"
 
-
     def compose_xml(self):
         """Compose XML elements"""
         xml = ET.Element(f"{{{MRI}}}pointOfContact")
         cit_ci__responsibility = ET.SubElement(xml, f"{{{CIT}}}CI_Responsibility")
         cit_role = ET.SubElement(cit_ci__responsibility, f"{{{CIT}}}role")
-        ET.SubElement(cit_role, f"{{{CIT}}}CI_RoleCode", attrib={
-            "codeList": "http://standards.iso.org/iso/19115/resources/Codelists/cat/codelists.xml#CI_RoleCode",
-            "codeListValue": self.role
-        })
+        ET.SubElement(
+            cit_role,
+            f"{{{CIT}}}CI_RoleCode",
+            attrib={
+                "codeList": "http://standards.iso.org/iso/19115/resources/Codelists/cat/codelists.xml#CI_RoleCode",
+                "codeListValue": self.role,
+            },
+        )
         cit_party = ET.SubElement(cit_ci__responsibility, f"{{{CIT}}}party")
         cit_ci_individual = ET.SubElement(cit_party, f"{{{CIT}}}CI_Individual")
         cit_name = ET.SubElement(cit_ci_individual, f"{{{CIT}}}name")
@@ -594,6 +636,7 @@ class Stakeholders(BaseModel):
         gco_character_string.text = self.name
 
         return xml
+
 
 class Overview(BaseModel):
     """
@@ -619,16 +662,19 @@ class Overview(BaseModel):
     url: str
     parent_element_xpath = ".//mri:MD_DataIdentification"
 
-
     def compose_xml(self):
         """Compose XML elements"""
         xml = ET.Element(f"{{{MRI}}}graphicOverview")
         mcc_md_browse_graphic = ET.SubElement(xml, f"{{{MCC}}}MD_BrowseGraphic")
         mcc_file_name = ET.SubElement(mcc_md_browse_graphic, f"{{{MCC}}}fileName")
-        name_gco_character_string = ET.SubElement(mcc_file_name, f"{{{GCO}}}CharacterString")
+        name_gco_character_string = ET.SubElement(
+            mcc_file_name, f"{{{GCO}}}CharacterString"
+        )
         name_gco_character_string.text = self.url
 
-        mcc_file_description = ET.SubElement(mcc_md_browse_graphic, f"{{{MCC}}}fileDescription")
+        mcc_file_description = ET.SubElement(
+            mcc_md_browse_graphic, f"{{{MCC}}}fileDescription"
+        )
         description_gco_character_string = ET.SubElement(
             mcc_file_description, f"{{{GCO}}}CharacterString"
         )
@@ -638,8 +684,7 @@ class Overview(BaseModel):
 
 
 class IsoDocumentBuilder:
-    """The main XML sheet
-    """
+    """The main XML sheet"""
 
     __template_path__ = XML_TEMPLATE
 
@@ -670,7 +715,9 @@ class IsoDocumentBuilder:
     def _make_xml_element(self, factory: type, **kwargs) -> ET.Element:
         return factory(**kwargs).compose_xml()
 
-    def _insert_xml(self, insert_point: str, doc: ET.ElementTree, element: ET.Element) -> None:
+    def _insert_xml(
+        self, insert_point: str, doc: ET.ElementTree, element: ET.Element
+    ) -> None:
         parent_element = doc.find(insert_point, PREFIX_MAP)
         parent_element.append(element)
 
@@ -688,52 +735,57 @@ class IsoDocumentBuilder:
         if "title" in self.data_dict:
             title_data = self.data_dict.get("title")
             title_element = Title(title=title_data)
-            self._insert_xml(title_element.parent_element_xpath,
-                             xml,
-                             title_element.compose_xml())
+            self._insert_xml(
+                title_element.parent_element_xpath, xml, title_element.compose_xml()
+            )
 
         # Create and insert the DATE element
         if "date" in self.data_dict:
             date_data = self.data_dict.get("date")
             for event in date_data:
                 date_element = Date(**event)
-                self._insert_xml(date_element.parent_element_xpath,
-                                 xml,
-                                 date_element.compose_xml())
+                self._insert_xml(
+                    date_element.parent_element_xpath, xml, date_element.compose_xml()
+                )
 
         # Create and insert the PRESENTATIONFORM element
         if "presentationForm" in self.data_dict:
             presentation_data = self.data_dict.get("presentationForm")
             pform_element = PresentationForm(presentationForm=presentation_data)
-            self._insert_xml(pform_element.parent_element_xpath,
-                             xml,
-                             pform_element.compose_xml())
-
+            self._insert_xml(
+                pform_element.parent_element_xpath, xml, pform_element.compose_xml()
+            )
 
         # Create and insert the TEMPORALEXTENT element
         if "extent" in self.data_dict and "temporalExtent" in self.data_dict["extent"]:
             data = self.data_dict.get("extent")
             tempextent_element = TemporalExtent(**data["temporalExtent"])
-            self._insert_xml(tempextent_element.parent_element_xpath,
-                             xml,
-                             tempextent_element.compose_xml())
+            self._insert_xml(
+                tempextent_element.parent_element_xpath,
+                xml,
+                tempextent_element.compose_xml(),
+            )
 
         # Create and insert the GEOEXTENT element
         if "extent" in self.data_dict and "geoExtent" in self.data_dict["extent"]:
             data = self.data_dict.get("extent")
             geoextent_element = GeoExtent(**data["geoExtent"])
-            self._insert_xml(geoextent_element.parent_element_xpath,
-                             xml,
-                             geoextent_element.compose_xml())
+            self._insert_xml(
+                geoextent_element.parent_element_xpath,
+                xml,
+                geoextent_element.compose_xml(),
+            )
 
         # Create and insert the KEYWORD elements
         if "keywords" in self.data_dict:
             data = self.data_dict.get("keywords")
             for keyword in data:
                 keyword_element = Keyword(**keyword)
-                self._insert_xml(keyword_element.parent_element_xpath,
-                                 xml,
-                                 keyword_element.compose_xml())
+                self._insert_xml(
+                    keyword_element.parent_element_xpath,
+                    xml,
+                    keyword_element.compose_xml(),
+                )
 
         # Create and insert the ASSOCIATEDRESSOURCE elements
         if "associatedResource" in self.data_dict:
@@ -741,9 +793,11 @@ class IsoDocumentBuilder:
             for resource in data:
                 if self._is_valid_uuid(resource["value"]):
                     associated_resource_element = AssociatedRessource(**resource)
-                    self._insert_xml(associated_resource_element.parent_element_xpath,
-                                     xml,
-                                     associated_resource_element.compose_xml())
+                    self._insert_xml(
+                        associated_resource_element.parent_element_xpath,
+                        xml,
+                        associated_resource_element.compose_xml(),
+                    )
                 else:
                     self.postponed["associatedResource"].append(resource)
 
@@ -752,18 +806,21 @@ class IsoDocumentBuilder:
             data = self.data_dict.get("stakeholders")
             for stakeholder in data:
                 stakeholder_element = Stakeholders(**stakeholder)
-                self._insert_xml(stakeholder_element.parent_element_xpath,
-                                 xml,
-                                 stakeholder_element.compose_xml())
+                self._insert_xml(
+                    stakeholder_element.parent_element_xpath,
+                    xml,
+                    stakeholder_element.compose_xml(),
+                )
 
         # Create and insert the OVERVIEW element
         if "overview" in self.data_dict:
             url_data = self.data_dict.get("overview")
             overview_element = Overview(url=url_data)
-            self._insert_xml(overview_element.parent_element_xpath,
-                             xml,
-                             overview_element.compose_xml())
-
+            self._insert_xml(
+                overview_element.parent_element_xpath,
+                xml,
+                overview_element.compose_xml(),
+            )
 
         # -- BLock MD_Distribution --
 
@@ -771,11 +828,13 @@ class IsoDocumentBuilder:
         if "distributionInfo" in self.data_dict:
             data = self.data_dict.get("distributionInfo")
             for distribution in data:
+                print(distribution)
                 distribution_info_element = DistributionInfo(**distribution)
-                self._insert_xml(distribution_info_element.parent_element_xpath,
-                                 xml,
-                                 distribution_info_element.compose_xml())
-
+                self._insert_xml(
+                    distribution_info_element.parent_element_xpath,
+                    xml,
+                    distribution_info_element.compose_xml(),
+                )
 
         # -- BLock resourceLineage --
 
@@ -785,8 +844,11 @@ class IsoDocumentBuilder:
             for relation in relations:
                 if self._is_valid_uuid(relation):
                     resource_info_element = ResourceLineage(uuidref=relation)
-                    self._insert_xml(resource_info_element.parent_element_xpath,
-                                     xml, resource_info_element.compose_xml())
+                    self._insert_xml(
+                        resource_info_element.parent_element_xpath,
+                        xml,
+                        resource_info_element.compose_xml(),
+                    )
                 else:
                     self.postponed["resourceLineage"].append(relation)
 

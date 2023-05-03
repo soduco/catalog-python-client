@@ -34,12 +34,12 @@ associatedResource:
 distributionInfo:
     -
         distributionFormat: "JPEG2000"
-        transferOptions:
+        onlineResources:
             -
                 linkage: "https://www.davidrumsey.com/rumsey/download.pl?image=/179/10110029.jp2"
                 protocol: "WWW:LINK"
                 name: "Original scan from the D. Rumsey map collection"
-                typeOfTransferOption: "OnlineResource"
+                onlineFunctionCode: "download"
 resourceLineage: 
     - "2ba09c9a-8007-4e7f-b89a-50d55659a6c4" 
 stakeholders:
@@ -86,12 +86,12 @@ associatedResource:
 distributionInfo:
     -
         distributionFormat: "Paper"
-        transferOptions: 
+        onlineResources: 
             -
                 linkage: ""
                 protocol: ""
                 name: ""
-                typeOfTransferOption: ""
+                onlineFunctionCode: ""
 resourceLineage: 
     - "001" 
 stakeholders:
@@ -135,14 +135,12 @@ associatedResource:
 distributionInfo:
     -
         distributionFormat: "Paper"
-        transferOptions: 
+        onlineResources: 
             -
                 linkage: ""
                 protocol: ""
                 name: ""
-                typeOfTransferOption: ""
-resourceLineage: 
-    - "002" 
+                onlineFunctionCode: ""
 stakeholders:
     -
         role: "originator"
