@@ -161,6 +161,6 @@ def test_parse_documents_raise_exception_on_bad_file_format():
     runner = CliRunner()
     result = runner.invoke(cli.parse, [wrong_input_file])
 
-    assert result == TypeError
+    assert isinstance(result.exception, ValueError)
 
     os.unlink(wrong_input_file)
