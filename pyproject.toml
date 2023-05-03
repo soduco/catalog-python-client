@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "soduco_geonetwork"
-version = "0.1.0"
+version = "0.1.0a"
 description = ""
 authors = []
 readme = "README.md"
