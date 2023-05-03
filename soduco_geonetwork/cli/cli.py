@@ -85,7 +85,7 @@ def upload(csv_file):
 
     for row in reader:
         # xml_file = helpers.xml_to_utf8string((helpers.read_xml_file(f"{dirname}/{row['xml_file']}")))
-        xml_file = helpers.read_xml_file(f"{dirname}/{row['xml_file']}")
+        xml_file = helpers.read_xml_file(f"{dirname}/{row['xml_file_path']}")
         json_response = dataset.upload(xml_file, session).json()
         geonetwork_uuid = helpers.get_geonetwork_uuid(json_response)
         row["geonetwork_uuid"] = geonetwork_uuid
