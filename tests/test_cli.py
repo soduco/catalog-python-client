@@ -6,6 +6,8 @@ import os
 import subprocess
 from importlib import import_module
 
+from click.testing import CliRunner
+
 import soduco_geonetwork.cli.cli as cli
 
 import pytest
@@ -21,15 +23,6 @@ class GeonetworkMockup:
 # ===
 # Resources
 sample_records = os.path.dirname(__file__) + "/fixtures/instance.yaml"
-
-# ===
-# CLI commands to test
-MAIN_COMMAND = "soduco_geonetwork_cli"
-PARSE_DOCUMENT = "parse"
-UPLOAD_RECORDS = "upload"
-UPDATE_RECORDS = "update"
-UPDATE_POSTPONED_VALUES = "update-postponed-values"
-DELETE_RECORDS = "delete"
 
 # ===
 # Test commands availability
@@ -48,38 +41,44 @@ def test_runas_module():
 
 def test_entrypoint():
     """Is entrypoint script installed with poetry? """
-    result = os.system(f'{MAIN_COMMAND} --help')
-    assert result == 0
+    runner = CliRunner()
+    result = runner.invoke(cli.cli, '--help')
+    assert result.exit_code == 0
 
 
 def test_cmd_parse_document_available():
     """Is parse command available ?"""
-    exit_status = os.system(f'{MAIN_COMMAND} {PARSE_DOCUMENT} --help')
-    assert exit_status == 0
+    runner = CliRunner()
+    result = runner.invoke(cli.parse, '--help')
+    assert result.exit_code == 0
 
 
 def test_cmd_upload_records_available():
     """Is upload command available ?"""
-    exit_status = os.system(f'{MAIN_COMMAND} {UPLOAD_RECORDS} --help')
-    assert exit_status == 0
+    runner = CliRunner()
+    result = runner.invoke(cli.upload, '--help')
+    assert result.exit_code == 0
 
 
 def test_cmd_update_records_available():
-    """Is update command available ?"""    
-    exit_status = os.system(f'{MAIN_COMMAND} {UPDATE_RECORDS} --help')
-    assert exit_status == 0
+    """Is update command available ?"""
+    runner = CliRunner()
+    result = runner.invoke(cli.update, '--help')
+    assert result.exit_code == 0
 
 
 def test_cmd_update_postponed_values_available():
     """Is update_postponed command available ?"""
-    exit_status = os.system(f'{MAIN_COMMAND} {UPDATE_POSTPONED_VALUES} --help')
-    assert exit_status == 0
+    runner = CliRunner()
+    result = runner.invoke(cli.update_postponed_values, '--help')
+    assert result.exit_code == 0
 
 
 def test_cmd_delete_records_available():
     """Is delete command available ?"""
-    exit_status = os.system(f'{MAIN_COMMAND} {DELETE_RECORDS} --help')
-    assert exit_status == 0
+    runner = CliRunner()
+    result = runner.invoke(cli.delete, '--help')
+    assert result.exit_code == 0
 
 
 def test_fail_without_secret():
@@ -87,11 +86,11 @@ def test_fail_without_secret():
     Must fail without a ``SECRET`` environment variable specified
     """
     message_regex = r".* SECRET not set. .*"
+    runner = CliRunner()
 
     with EnvironContext(SECRET=None):
-        with pytest.raises(SystemExit, match=message_regex):
-            cli.cli()
-            pytest.fail("CLI doesn't abort with missing SECRET")
+        results = runner.invoke(cli.cli)
+        assert results.exit_code != 0
 
 
 # ===
@@ -99,14 +98,16 @@ def test_fail_without_secret():
 
 
 def test_parse_document_expect_arguments():
-    """Does parse command expect arguments ?"""    
-    with pytest.raises(subprocess.CalledProcessError):
-        subprocess.run([MAIN_COMMAND, PARSE_DOCUMENT], check=True)
+    """Does parse command expect arguments ?"""
+    runner = CliRunner()
+    result = runner.invoke(cli.parse)
+    assert 'Missing argument' in result.output
 
 
 def test_parse_document_creates_nonempty_readable_tmpfile_in_current_folder():
     """Does parse command create a non empty and readable csv file in current folder ?"""
-    subprocess.run([MAIN_COMMAND, PARSE_DOCUMENT, sample_records], check=True)
+    runner = CliRunner()
+    runner.invoke(cli.parse, [sample_records])
     csv_file = os.getcwd() + "/yaml_list.csv"
     assert os.path.exists(csv_file)
     assert open(csv_file, "r", encoding='utf8').read()
@@ -115,7 +116,8 @@ def test_parse_document_creates_nonempty_readable_tmpfile_in_current_folder():
 def test_parse_documents_creates_xml_files_at_tmp_folder():
     """Does parse command create xml files in the temp folder ?"""
     current_folder = os.getcwd()
-    subprocess.run([MAIN_COMMAND, PARSE_DOCUMENT, sample_records], check=True)
+    runner = CliRunner()
+    runner.invoke(cli.parse, [sample_records])
     csv_file = f"{current_folder}/yaml_list.csv"
     assert os.path.exists(csv_file)
 
@@ -132,8 +134,8 @@ def test_parse_documents_creates_xml_files_at_output_folder():
     """Does parse command create xml files at the given output folder ?"""
     current_folder = os.getcwd()
     output_folder = f"{current_folder}/tmp"
-    subprocess.run([MAIN_COMMAND, PARSE_DOCUMENT, sample_records,
-                    "--output_folder", output_folder], check=True)
+    runner = CliRunner()
+    runner.invoke(cli.parse, [sample_records, "--output_folder", output_folder])
     csv_file = f"{current_folder}/yaml_list.csv"
     assert os.path.exists(csv_file)
 
@@ -153,7 +155,9 @@ def test_parse_documents_raise_exception_on_bad_file_format():
     wrong_input_file = 'csv_file.csv'
     open(wrong_input_file, 'a', encoding="utf8").close()
 
-    with pytest.raises(ValueError, match=r".*yaml file.*"):
-        subprocess.run([MAIN_COMMAND, PARSE_DOCUMENT, wrong_input_file], check=True)
+    runner = CliRunner()
+    result = runner.invoke(cli.parse, [wrong_input_file])
+
+    assert result == TypeError
 
     os.unlink(wrong_input_file)
