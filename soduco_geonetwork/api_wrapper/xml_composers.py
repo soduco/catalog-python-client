@@ -828,7 +828,6 @@ class IsoDocumentBuilder:
         if "distributionInfo" in self.data_dict:
             data = self.data_dict.get("distributionInfo")
             for distribution in data:
-                print(distribution)
                 distribution_info_element = DistributionInfo(**distribution)
                 self._insert_xml(
                     distribution_info_element.parent_element_xpath,
