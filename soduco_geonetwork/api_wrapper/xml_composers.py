@@ -351,7 +351,6 @@ class Keyword(BaseModel):
     """
 
     value: str
-    typeOfKeyword: str
     parent_element_xpath = ".//mri:MD_DataIdentification"
 
     def compose_xml(self):
@@ -366,8 +365,7 @@ class Keyword(BaseModel):
             mri_type,
             f"{{{MRI}}}MD_KeywordTypeCode",
             attrib={
-                "codeList": "http://standards.iso.org/iso/19115/resources/Codelists/cat/codelists.xml#MD_KeywordTypeCode",
-                "codeListValue": self.typeOfKeyword,
+                "codeList": "http://standards.iso.org/iso/19115/resources/Codelists/cat/codelists.xml#MD_KeywordTypeCode"
             },
         )
 
