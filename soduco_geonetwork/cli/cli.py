@@ -104,7 +104,7 @@ def update(input_csv_file, edition_location, xml_patch):
     """
     Needs 3 arguments:
 
-    - A csv file with a column "geonetwork_uuid" with uuids to delete
+    - A csv file with a column "geonetwork_uuid" with uuids to update
 
     - An edition location in the document (in Xpath)
 
