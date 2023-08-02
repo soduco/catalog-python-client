@@ -351,6 +351,7 @@ class Keyword(BaseModel):
     """
 
     value: str
+    # typeOfKeyword: str
     parent_element_xpath = ".//mri:MD_DataIdentification"
 
     def compose_xml(self):
@@ -360,14 +361,15 @@ class Keyword(BaseModel):
         mri_keyword = ET.SubElement(mri_md_keywords, f"{{{MRI}}}keyword")
         gco_character_string = ET.SubElement(mri_keyword, f"{{{GCO}}}CharacterString")
         gco_character_string.text = self.value
-        mri_type = ET.SubElement(mri_md_keywords, f"{{{MRI}}}type")
-        ET.SubElement(
-            mri_type,
-            f"{{{MRI}}}MD_KeywordTypeCode",
-            attrib={
-                "codeList": "http://standards.iso.org/iso/19115/resources/Codelists/cat/codelists.xml#MD_KeywordTypeCode"
-            },
-        )
+        # mri_type = ET.SubElement(mri_md_keywords, f"{{{MRI}}}type")
+        # ET.SubElement(
+        #     mri_type,
+        #     f"{{{MRI}}}MD_KeywordTypeCode",
+        #     attrib={
+        #         "codeList": "http://standards.iso.org/iso/19115/resources/Codelists/cat/codelists.xml#MD_KeywordTypeCode",
+        #         "codeListValue": self.typeOfKeyword,
+        #     },
+        # )
 
         return xml
 
