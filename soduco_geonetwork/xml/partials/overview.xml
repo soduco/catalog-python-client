@@ -1,0 +1,10 @@
+<mri:graphicOverview>
+    <mcc:MD_BrowseGraphic>
+        <mcc:fileName>
+            <gco:CharacterString>{VALUE_URL}</gco:CharacterString>
+        </mcc:fileName>
+        <mcc:fileDescription>
+            <gco:CharacterString>Overview</gco:CharacterString>
+        </mcc:fileDescription>
+    </mcc:MD_BrowseGraphic>
+</mri:graphicOverview>

@@ -1,0 +1,7 @@
+<mri:citation>
+    <cit:CI_Citation>
+        <cit:title>
+            <gco:CharacterString>{VALUE_TITLE}</gco:CharacterString>
+        </cit:title>
+    </cit:CI_Citation>
+</mri:citation>

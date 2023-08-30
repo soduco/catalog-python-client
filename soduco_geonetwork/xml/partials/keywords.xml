@@ -1,0 +1,12 @@
+<mri:descriptiveKeywords>
+    <mri:MD_Keywords>
+        <mri:keyword>
+            <gco:CharacterString>{VALUE_KEYWORD}</gco:CharacterString>
+        </mri:keyword>
+        <mri:type>
+            <mri:MD_KeywordTypeCode
+                codeList="http://standards.iso.org/iso/19115/resources/Codelists/cat/codelists.xml#MD_KeywordTypeCode"
+                codeListValue="{VALUE_KEYWORD_TYPE}" />
+        </mri:type>
+    </mri:MD_Keywords>
+</mri:descriptiveKeywords>

@@ -4,8 +4,8 @@
 import csv
 import json
 import os
-import xml.etree.ElementTree as ET
 
+import lxml.etree as ET
 import yaml
 
 from . import xml_composers
@@ -26,8 +26,8 @@ def parse(input_file: str, output_folder: str):
         yaml_documents = list(yaml.load_all(yaml_multidoc, Loader=yaml.SafeLoader))
 
         for yaml_doc in yaml_documents:
-            builder = xml_composers.IsoDocumentBuilder(yaml_doc)
-            xml_tree = builder.compose_xml()
+            builder = xml_composers.RecordDocumentBuilder().process_data_tree(yaml_doc)
+            xml_tree = builder.build()
             ET.indent(xml_tree) # Beautify XML doc
 
             xml_file_path = f"{output_folder}/{yaml_doc['identifier']}.xml"
@@ -35,7 +35,7 @@ def parse(input_file: str, output_folder: str):
 
             doc_infos.append({'identifier': yaml_doc['identifier'],
                               'xml_file_path': xml_file_path,
-                              'postponed_values': builder.postponed})
+                              'postponed_values': builder.deferred_processing})
 
     fields = ['yaml_identifier', 'xml_file_path', 'postponed_values']
 

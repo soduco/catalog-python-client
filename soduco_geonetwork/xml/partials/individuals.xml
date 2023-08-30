@@ -1,0 +1,17 @@
+<mri:pointOfContact>
+    <cit:CI_Responsibility>
+        <cit:role>
+            <cit:CI_RoleCode
+                codeList="http://standards.iso.org/iso/19115/resources/Codelists/cat/codelists.xml#CI_RoleCode"
+                codeListValue="{VALUE_ROLE}"
+            />    
+        </cit:role>
+        <cit:party>
+            <cit:CI_Individual>
+                <cit:name>
+                    <gco:CharacterString>{VALUE_NAME}</gco:CharacterString>
+                </cit:name>
+            </cit:CI_Individual>
+        </cit:party>
+    </cit:CI_Responsibility>
+</mri:pointOfContact>

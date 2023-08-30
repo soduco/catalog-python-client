@@ -1,26 +1,33 @@
 %YAML 1.1
 ---
-type: "Instantiation"
-identifier: "001"
-title: "This is a test"
-date:
+type: "Instantiation" # Optional, FIXME should be in keywords
+identifier: "001" # MUST be present
+identification: # MUST be present
+    title: "VERNIQUET - TEST ISO19115" # MUST be present
+events: # MUST be present with AT LEAST an event "publication"
     -
-        value: "2022-05-20"
+        value: "1784-01-01"
         event: "creation"
     -
         value: "2022-05-21"
         event: "update"
-presentationForm: "mapDigital"
-extent:
-    geoExtent:
+    -
+        value: "2022-01-01"
+        event: "publication"
+presentationForm: "mapDigital" # Optional
+extent: 
+    geoExtent: # Unknown ? Perhaps mandatory.
         westBoundLongitude: "2.3263"
         eastBoundLongitude: "2.3432"
         southBoundLatitude: "48.8608"
         northBoundLatitude: "48.8666"
-    temporalExtent:
+    temporalExtent: #Optional
         beginPosition: "1791-01-01"
         endPosition: "1800-01-01"
-keywords: 
+keywords: # Optional for ISO19115 but mandatory for the catalogue RDF mappings
+    -
+        value: "Instanciation"
+        typeOfKeyword: "taxon"
     -
         value: "Paris"
         typeOfKeyword: "place"
@@ -31,122 +38,35 @@ associatedResource:
     -
         value: "5983d5b5-46f3-4189-925c-c5df8fa36a0b"
         typeOfAssociation: "largerWorkCitation"
-distributionInfo:
-    -
-        distributionFormat: "JPEG2000"
-        onlineResources:
-            -
-                linkage: "https://www.davidrumsey.com/rumsey/download.pl?image=/179/10110029.jp2"
-                protocol: "WWW:LINK"
-                name: "Original scan from the D. Rumsey map collection"
-                onlineFunctionCode: "download"
-resourceLineage: 
-    - "2ba09c9a-8007-4e7f-b89a-50d55659a6c4" 
-stakeholders:
-    -
-        role: "originator"
-        name: "Edme Verniquet"
-    -
-        role: "publisher"
-        name: "David Rumsey Map Collection"
-overview: "https://placekitten.com/250/250"
-...
----
-type: "Instantiation"
-identifier: "002"
-title: "This is another test"
-date:
-    -
-        value: "2022-05-20"
-        event: "creation"
-presentationForm: "mapHardCopy"
-extent:
-    geoExtent:
-        westBoundLongitude: "2.3263"
-        eastBoundLongitude: "2.3432"
-        southBoundLatitude: "48.8608"
-        northBoundLatitude: "48.8666"
-    temporalExtent:
-        beginPosition: "1791-01-01"
-        endPosition: "1800-01-01"
-keywords: 
-    -
-        value: "Paris"
-        typeOfKeyword: "place"
-    -
-        value: "Verniquet"
-        typeOfKeyword: "theme"
-associatedResource:
-    -
-        value: "5983d5b5-46f3-4189-925c-c5df8fa36a0b"
-        typeOfAssociation: "largerWorkCitation"
-    -
-        value: "001"
-        typeOfAssociation: "largerWorkCitation"
-distributionInfo:
-    -
-        distributionFormat: "Paper"
-        onlineResources: 
-            -
-                linkage: ""
-                protocol: ""
-                name: ""
-                onlineFunctionCode: ""
-resourceLineage: 
-    - "001" 
-stakeholders:
-    -
-        role: "originator"
-        name: "Edme Verniquet"
-    -
-        role: "publisher"
-        name: "David Rumsey Map Collection"
-overview: "https://placekitten.com/300/300"
-...
----
-type: "Instantiation"
-identifier: "003"
-title: "This is, again, another test"
-date:
-    -
-        value: "2022-05-20"
-        event: "creation"
-presentationForm: "mapHardCopy"
-extent:
-    geoExtent:
-        westBoundLongitude: "2.3263"
-        eastBoundLongitude: "2.3432"
-        southBoundLatitude: "48.8608"
-        northBoundLatitude: "48.8666"
-    temporalExtent:
-        beginPosition: "1791-01-01"
-        endPosition: "1800-01-01"
-keywords: 
-    -
-        value: "Paris"
-        typeOfKeyword: "place"
-    -
-        value: "Verniquet"
-        typeOfKeyword: "theme"
-associatedResource:
-    -
-        value: "001"
-        typeOfAssociation: "largerWorkCitation"
-distributionInfo:
-    -
-        distributionFormat: "Paper"
-        onlineResources: 
-            -
-                linkage: ""
-                protocol: ""
-                name: ""
-                onlineFunctionCode: ""
-stakeholders:
-    -
-        role: "originator"
-        name: "Edme Verniquet"
-    -
-        role: "publisher"
-        name: "David Rumsey Map Collection"
-overview: "https://placekitten.com/400/400"
+distributionInfo: # Mandatory, at least distributor & distributor_mail
+    distributor: "The SoDUCo Project"
+    distributor_mail: "contact@geohistoricaldata.org"
+    distributionFormat: "JPEG2000"
+    onlineResources:
+        -
+            linkage: "https://www.davidrumsey.com/rumsey/download.pl?image=/179/10110029.jp2"
+            protocol: "WWW:LINK"
+            name: "Original scan from the D. Rumsey map collection"
+            onlineFunctionCode: "download"
+resourceLineage:  # Optional
+    - "2ba09c9a-8007-4e7f-b89a-50d55659a6c4"
+stakeholders: # Mandatory, at least publisher and custodian. Can be individuals or organisations.
+    individuals:
+        -
+            role: "originator"
+            name: "Edme Verniquet"
+    organisations:
+        -
+            role: "publisher"
+            name: "The SoDUCo project"
+            mail: "contact@geohistoricaldata.org"
+        -
+            role: "custodian"
+            name: "Bibliothèque Nationale de France"
+            mail: "contact@bnf.fr"
+        -
+            role: "custodian"
+            name: "The SoDUCo project"
+            mail: "contact@geohistoricaldata.org"
+overview: "https://placekitten.com/250/250" # Optional
 ...

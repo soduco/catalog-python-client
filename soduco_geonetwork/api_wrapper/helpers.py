@@ -142,12 +142,14 @@ def replace_uuid(csv_file: str, output_file: str):
                 postponed_list, postponed_values["uuid"]
             )
             if "associatedResource" in postponed_values.keys():
-                for ressource in postponed_values["associatedResource"]:
-                    ressource["value"] = return_uuid(postponed_list, ressource["value"])
+                for index, ressource in enumerate(postponed_values["associatedResource"]):
+                    postponed_values["associatedResource"][index]["value"] = return_uuid(
+                        postponed_list, ressource["value"]
+                    )
             if "resourceLineage" in postponed_values.keys():
                 for index, ressource in enumerate(postponed_values["resourceLineage"]):
                     postponed_values["resourceLineage"][index] = return_uuid(
-                        postponed_list, ressource
+                        postponed_list, ressource["value"]
                     )
             postponed["postponed_values"] = json.dumps(postponed_values)
 

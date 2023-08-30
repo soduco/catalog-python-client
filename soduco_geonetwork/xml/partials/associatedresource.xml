@@ -1,0 +1,11 @@
+<mri:associatedResource>
+    <mri:MD_AssociatedResource>
+        <mri:associationType>
+            <mri:DS_AssociationTypeCode
+                codeList="http://standards.iso.org/iso/19115/resources/Codelists/cat/codelists.xml#DS_AssociationTypeCode"
+                codeListValue="{VALUE_ASSOCIATION_TYPE}"
+            />
+        </mri:associationType>
+        <mri:metadataReference uuidref="{VALUE_UUIDREF}" />
+    </mri:MD_AssociatedResource>
+</mri:associatedResource>

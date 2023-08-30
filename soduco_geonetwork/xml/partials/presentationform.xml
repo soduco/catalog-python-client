@@ -1,0 +1,6 @@
+<cit:presentationForm>
+    <cit:CI_PresentationFormCode
+        codeList="http://standards.iso.org/iso/19115/resources/Codelists/cat/codelists.xml#CI_PresentationFormCode"
+        codeListValue="{VALUE_PRESENTATION_FORMAT}"
+    />
+</cit:presentationForm>

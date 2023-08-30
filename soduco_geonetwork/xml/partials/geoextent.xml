@@ -1,0 +1,16 @@
+<gex:geographicElement>
+    <gex:EX_GeographicBoundingBox>
+        <gex:westBoundLongitude>
+            <gco:Decimal>{VALUE_WESTBOUND_LONGITUDE}</gco:Decimal>
+        </gex:westBoundLongitude>
+        <gex:eastBoundLongitude>
+            <gco:Decimal>{VALUE_EASTBOUND_LONGITUDE}</gco:Decimal>
+        </gex:eastBoundLongitude>
+        <gex:southBoundLatitude>
+            <gco:Decimal>{VALUE_SOUTHBOUND_LATITUDE}</gco:Decimal>
+        </gex:southBoundLatitude>
+        <gex:northBoundLatitude>
+            <gco:Decimal>{VALUE_NORTHBOUND_LATITUDE}</gco:Decimal>
+        </gex:northBoundLatitude>
+    </gex:EX_GeographicBoundingBox>
+</gex:geographicElement>

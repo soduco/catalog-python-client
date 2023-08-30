@@ -1,0 +1,11 @@
+<mrd:distributionFormat>
+    <mrd:MD_Format>
+        <mrd:formatSpecificationCitation>
+            <cit:CI_Citation>
+                <cit:title>
+                    <gco:CharacterString>{VALUE_DISTRIBUTION_FORMAT}</gco:CharacterString>
+                </cit:title>
+            </cit:CI_Citation>
+        </mrd:formatSpecificationCitation>
+    </mrd:MD_Format>
+</mrd:distributionFormat>

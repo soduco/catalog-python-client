@@ -1,0 +1,14 @@
+<gex:temporalElement>
+    <gex:EX_TemporalExtent>
+        <gex:extent>
+            <gml:TimePeriod gml:id="A1234">
+                <gml:beginPosition>
+                    {VALUE_BEGIN_POSIION}
+                </gml:beginPosition>
+                <gml:endPosition>
+                    {VALUE_END_POSIION}
+                </gml:endPosition>
+            </gml:TimePeriod>
+        </gex:extent>
+    </gex:EX_TemporalExtent>
+</gex:temporalElement>

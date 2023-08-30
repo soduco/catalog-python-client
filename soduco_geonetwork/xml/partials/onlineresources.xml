@@ -1,0 +1,19 @@
+<mrd:onLine>
+    <cit:CI_OnlineResource>
+        <cit:linkage>
+            <gco:CharacterString>{VALUE_ONLINERESOURCE_LINKAGE}</gco:CharacterString>
+        </cit:linkage>
+        <cit:protocol>
+            <gco:CharacterString>{VALUE_ONLINERESOURCE_PROTOCOL}</gco:CharacterString>
+        </cit:protocol>
+        <cit:name>
+            <gco:CharacterString>{VALUE_ONLINERESOURCE_NAME}</gco:CharacterString>
+        </cit:name>
+        <cit:function>
+            <cit:CI_OnLineFunctionCode
+                codeList="http://standards.iso.org/iso/19115/resources/Codelists/cat/codelists.xml#CI_OnLineFunctionCode"
+                codeListValue="{VALUE_ONLINERESOURCE_TYPE}"
+            />
+        </cit:function>
+    </cit:CI_OnlineResource>
+</mrd:onLine>

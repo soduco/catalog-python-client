@@ -1,13 +1,19 @@
 """System module."""
+import collections
+import json
 import os
+import sys
 import uuid
+import warnings
+from lxml import etree as ET
+import re
 import yaml
-import xml.etree.ElementTree as ET
-from typing import List, Optional
-from pydantic import BaseModel
+from typing import Any, ClassVar, Union
 from collections import defaultdict
 
-XML_TEMPLATE = os.path.dirname(__file__) + "/xmltemplates/dataset_iso19115.xml"
+RECORD_DOCUMENT_TEMPLATE_PATH = (
+    os.path.dirname(__file__) + "/xmltemplates/dataset_iso19115.xml"
+)
 
 """
 register_namespaces() method isn't sufficient alone.
@@ -17,838 +23,564 @@ For example we want to create the element <gml:beginPosition> :
 ET.Element("{http://www.opengis.net/gml/3.2}beginPosition")
 
 Lineage relations to non-yet uploaded resources are postponed
-Si la valeur n'est pas un UUID, c'est une resource locale.
-Dans ce cas on enregistre la resource dans un attribut dictionnaire self.postponed:
-Il faudra résoudre les identifiants des relations "resourceLineage" avant d'exporter
-le dictionnaire.
+If the value isn't an UUID, then it's a local file.
+In this case, we save the file name in a dictionnary "self.postponed".
+We will have to resolve the relations IDs before exporting the dictionnary
 """
 
-# we save here the namespaces url to reuse them later
-MDB = "http://standards.iso.org/iso/19115/-3/mdb/2.0"
-CAT = "http://standards.iso.org/iso/19115/-3/cat/1.0"
-GFC = "http://standards.iso.org/iso/19110/gfc/1.1"
-CIT = "http://standards.iso.org/iso/19115/-3/cit/2.0"
-GCX = "http://standards.iso.org/iso/19115/-3/gcx/1.0"
-GEX = "http://standards.iso.org/iso/19115/-3/gex/1.0"
-LAN = "http://standards.iso.org/iso/19115/-3/lan/1.0"
-SRV = "http://standards.iso.org/iso/19115/-3/srv/2.1"
-MAS = "http://standards.iso.org/iso/19115/-3/mas/1.0"
-MCC = "http://standards.iso.org/iso/19115/-3/mcc/1.0"
-MCO = "http://standards.iso.org/iso/19115/-3/mco/1.0"
-MDA = "http://standards.iso.org/iso/19115/-3/mda/1.0"
-MDS = "http://standards.iso.org/iso/19115/-3/mds/2.0"
-MDT = "http://standards.iso.org/iso/19115/-3/mdt/2.0"
-MEX = "http://standards.iso.org/iso/19115/-3/mex/1.0"
-MMI = "http://standards.iso.org/iso/19115/-3/mmi/1.0"
-MPC = "http://standards.iso.org/iso/19115/-3/mpc/1.0"
-MRC = "http://standards.iso.org/iso/19115/-3/mrc/2.0"
-MRD = "http://standards.iso.org/iso/19115/-3/mrd/1.0"
-MRI = "http://standards.iso.org/iso/19115/-3/mri/1.0"
-MRL = "http://standards.iso.org/iso/19115/-3/mrl/2.0"
-MRS = "http://standards.iso.org/iso/19115/-3/mrs/1.0"
-MSR = "http://standards.iso.org/iso/19115/-3/msr/2.0"
-MDQ = "http://standards.iso.org/iso/19157/-2/mdq/1.0"
-MAC = "http://standards.iso.org/iso/19115/-3/mac/2.0"
-GCO = "http://standards.iso.org/iso/19115/-3/gco/1.0"
-GML = "http://www.opengis.net/gml/3.2"
-XLINK = "http://www.w3.org/1999/xlink"
-XSI = "http://www.w3.org/2001/XMLSchema-instance"
-
-PREFIX_MAP = {
-    "mdb": MDB,
-    "cat": CAT,
-    "gfc": GFC,
-    "cit": CIT,
-    "gcx": GCX,
-    "gex": GEX,
-    "lan": LAN,
-    "srv": SRV,
-    "mas": MAS,
-    "mcc": MCC,
-    "mco": MCO,
-    "mda": MDA,
-    "mds": MDS,
-    "mdt": MDT,
-    "mex": MEX,
-    "mmi": MMI,
-    "mpc": MPC,
-    "mrc": MRC,
-    "mrd": MRD,
-    "mri": MRI,
-    "mrl": MRL,
-    "mrs": MRS,
-    "msr": MSR,
-    "mdq": MDQ,
-    "mac": MAC,
-    "gco": GCO,
-    "gml": GML,
-    "xlink": XLINK,
-    "xsi": XSI,
+NAMESPACES = {
+    "mdb": "http://standards.iso.org/iso/19115/-3/mdb/2.0",
+    "cat": "http://standards.iso.org/iso/19115/-3/cat/1.0",
+    "gfc": "http://standards.iso.org/iso/19110/gfc/1.1",
+    "cit": "http://standards.iso.org/iso/19115/-3/cit/2.0",
+    "gcx": "http://standards.iso.org/iso/19115/-3/gcx/1.0",
+    "gex": "http://standards.iso.org/iso/19115/-3/gex/1.0",
+    "lan": "http://standards.iso.org/iso/19115/-3/lan/1.0",
+    "srv": "http://standards.iso.org/iso/19115/-3/srv/2.1",
+    "mas": "http://standards.iso.org/iso/19115/-3/mas/1.0",
+    "mcc": "http://standards.iso.org/iso/19115/-3/mcc/1.0",
+    "mco": "http://standards.iso.org/iso/19115/-3/mco/1.0",
+    "mda": "http://standards.iso.org/iso/19115/-3/mda/1.0",
+    "mds": "http://standards.iso.org/iso/19115/-3/mds/2.0",
+    "mdt": "http://standards.iso.org/iso/19115/-3/mdt/2.0",
+    "mex": "http://standards.iso.org/iso/19115/-3/mex/1.0",
+    "mmi": "http://standards.iso.org/iso/19115/-3/mmi/1.0",
+    "mpc": "http://standards.iso.org/iso/19115/-3/mpc/1.0",
+    "mrc": "http://standards.iso.org/iso/19115/-3/mrc/2.0",
+    "mrd": "http://standards.iso.org/iso/19115/-3/mrd/1.0",
+    "mri": "http://standards.iso.org/iso/19115/-3/mri/1.0",
+    "mrl": "http://standards.iso.org/iso/19115/-3/mrl/2.0",
+    "mrs": "http://standards.iso.org/iso/19115/-3/mrs/1.0",
+    "msr": "http://standards.iso.org/iso/19115/-3/msr/2.0",
+    "mdq": "http://standards.iso.org/iso/19157/-2/mdq/1.0",
+    "mac": "http://standards.iso.org/iso/19115/-3/mac/2.0",
+    "gco": "http://standards.iso.org/iso/19115/-3/gco/1.0",
+    "gml": "http://www.opengis.net/gml/3.2",
+    "xlink": "http://www.w3.org/1999/xlink",
+    "xsi": "http://www.w3.org/2001/XMLSchema-instance",
 }
 
+# Register every XML namespace used in a GeoNetwork record document.
+for namespace, uri in NAMESPACES.items():
+    ET.register_namespace(namespace, uri)
 
-class Title(BaseModel):
-    """
-    Creates a new ISO-19115 title element.
 
-    Xml serialisation:
-    <cit:title>
-        <gco:CharacterString></gco:CharacterString>
-    </cit:title>
+class RecordDocumentBuilder:
+    """Build a Geonetwork record document in XML format.
 
-    TO DO:
-    XML serialisation for multilingue:
-    <cit:title xsi:type="lan:PT_FreeText_PropertyType">
-        <gco:CharacterString>Atlas du plan général de la Ville de Paris</gco:CharacterString>
-        <lan:PT_FreeText>
-            <lan:textGroup>
-            <lan:LocalisedCharacterString locale="#EN">Atlas du plan général de la Ville de Paris</lan:LocalisedCharacterString>
-            </lan:textGroup>
-            <lan:textGroup>
-            <lan:LocalisedCharacterString locale="#FR">Atlas du plan général de la Ville de Paris</lan:LocalisedCharacterString>
-            </lan:textGroup>
-        </lan:PT_FreeText>
-    </cit:title>
-    Args:
-        BaseModel (_type_): _description_
+    Building a document starts from a base document template
+    and applies `XMLComposer` objects to enrich it step by step.
+    `XMLComposers` are in charge of generating a block of XML that can be inserted
+    at a specific location in an XML document.
 
-    Returns:
-        _type_: _description_
+    This class also provide the method `process_data_tree()` to automatically create the list of composers
+    for a Geonetork record represented as a dictionary, typically parsed from a YAML document.
+
+    Calling the method `build()` will trigger the actual composition of the XML record.
     """
 
-    title: str
-    parent_element_xpath = ".//mri:MD_DataIdentification/mri:citation/cit:CI_Citation"
+    __document_template__: str = RECORD_DOCUMENT_TEMPLATE_PATH
 
-    def compose_xml(self):
-        """Compose XML elements"""
-        xml = ET.Element(f"{{{CIT}}}title")
-        e_title = ET.SubElement(xml, f"{{{GCO}}}CharacterString")
-        e_title.text = self.title
-        return xml
+    def __init__(self) -> None:
+        """Create a new builder.
 
+        At init stage, a builder holds an XML tree loaded from the template document `__document_template__`.
+        """
+        self.deferred_processing = defaultdict(list)
+        self.record_doc = ET.parse(self.__document_template__)
+        self._composers = []
+        self._constructed = False
 
-class Date(BaseModel):
-    """
+    def build(self) -> ET._ElementTree:
+        """Trigger building and return the XML record document.
 
-    XML serialisation:
-    <cit:date>
-        <cit:CI_Date>
-            <cit:date>
-            <gco:Date>{value}</gco:Date>
-            </cit:date>
-            <cit:dateType>
-            <cit:CI_DateTypeCode
-                codeList="http://standards.iso.org/iso/19115/resources/Codelists/cat/codelists.xml#CI_DateTypeCode"
-                codeListValue="{event}"
-            />
-            </cit:dateType>
-        </cit:CI_Date>
-    </cit:date>
-    """
+        Building is done by applying the sequence of registered composers to the base XML template.
 
-    value: str
-    event: str
-    parent_element_xpath = ".//mri:MD_DataIdentification/mri:citation/cit:CI_Citation"
+        Builders are not reusable, meaning that calling `build()` on the same builder object will raise
+        an exception.
 
-    def compose_xml(self):
-        """Compose XML elements"""
-        xml = ET.Element(f"{{{CIT}}}date")
-        cit_ci_date = ET.SubElement(xml, f"{{{CIT}}}CI_Date")
-        cit_date = ET.SubElement(cit_ci_date, f"{{{CIT}}}date")
-        gco_date = ET.SubElement(cit_date, f"{{{GCO}}}Date")
-        gco_date.text = self.value
+        Important notes
+        -------
+        In some cases (e.g. associated resources), information for specific fields may not be available
+        at this stage but instead requires the record to be pushed to a GeoNetwork instance first.
+        Affected composers are then applied and added to the `self.deferred_processing` dictionary,
+        making them available for further processing.
+        """
+        if self._constructed:
+            raise ValueError("The builder has already been used")
 
-        cit_datetype = ET.SubElement(cit_ci_date, f"{{{CIT}}}dateType")
-        ET.SubElement(
-            cit_datetype,
-            f"{{{CIT}}}CI_DateTypeCode",
-            attrib={
-                "codeList": "http://standards.iso.org/iso/19115/resources/Codelists/cat/codelists.xml#CI_DateTypeCode",
-                "codeListValue": self.event,
-            },
-        )
-        return xml
+        for composer in self._composers:
+            new_element = composer.compose()
 
-
-class PresentationForm(BaseModel):
-    """
-    XML serialisation:
-    <cit:presentationForm>
-        <cit:CI_PresentationFormCode
-            codeList="http://standards.iso.org/iso/19115/resources/Codelists/cat/codelists.xml#CI_PresentationFormCode"
-            codeListValue="{presentationFormat}"/>
-    </cit:presentationForm>
-
-    Args:
-        BaseModel (_type_): _description_
-
-    Returns:
-        _type_: _description_
-    """
-
-    presentationForm: str
-    parent_element_xpath = ".//mri:MD_DataIdentification/mri:citation/cit:CI_Citation"
-
-    def compose_xml(self):
-        """Compose XML elements"""
-        xml = ET.Element(f"{{{CIT}}}presentationForm")
-        ET.SubElement(
-            xml,
-            f"{{{CIT}}}CI_PresentationFormCode",
-            attrib={
-                "codeList": "http://standards.iso.org/iso/19115/resources/Codelists/cat/codelists.xml#CI_PresentationFormCode",
-                "codeListValue": self.presentationForm,
-            },
-        )
-
-        return xml
-
-
-class TemporalExtent(BaseModel):
-    """
-    XML serialisation:
-    <mri:extent>
-        <gex:EX_Extent>
-            <gex:temporalElement>
-                <gex:EX_TemporalExtent>
-                    <gex:extent>
-                    <gml:TimePeriod gml:id="A1234">
-                        <gml:beginPosition>
-                            {beginPosition_value}
-                        </gml:beginPosition>
-                        <gml:endPosition>
-                            {endPosition_value}
-                        </gml:endPosition>
-                    </gml:TimePeriod>
-                    </gex:extent>
-                </gex:EX_TemporalExtent>
-            </gex:temporalElement>
-        </gex:EX_Extent>
-    </mri:extent>
-
-    Args:
-        BaseModel (_type_): _description_
-
-    Returns:
-        _type_: _description_
-    """
-
-    beginPosition: str
-    endPosition: str
-    parent_element_xpath = ".//mri:MD_DataIdentification"
-
-    def compose_xml(self):
-        """Compose XML elements"""
-        xml = ET.Element(f"{{{MRI}}}extent")
-        ex_extent = ET.SubElement(xml, f"{{{GEX}}}EX_Extent")
-        gex_temporal_element = ET.SubElement(ex_extent, f"{{{GEX}}}temporalElement")
-        gex_temporal_extent = ET.SubElement(
-            gex_temporal_element, f"{{{GEX}}}EX_TemporalExtent"
-        )
-        gex_extent = ET.SubElement(gex_temporal_extent, f"{{{GEX}}}extent")
-        gml_time_period = ET.SubElement(
-            gex_extent, f"{{{GML}}}TimePeriod", attrib={f"{{{GML}}}id": "A1234"}
-        )
-        gml_begin_position = ET.SubElement(gml_time_period, f"{{{GML}}}beginPosition")
-        gml_end_position = ET.SubElement(gml_time_period, f"{{{GML}}}endPosition")
-        gml_begin_position.text = self.beginPosition
-        gml_end_position.text = self.endPosition
-
-        return xml
-
-
-class GeoExtent(BaseModel):
-    """
-    XML serialisation:
-    <mri:extent>
-        <gex:EX_Extent>
-            <gex:geographicElement>
-                <gex:EX_GeographicBoundingBox>
-                    <gex:westBoundLongitude>
-                        <gco:Decimal>{value}</gco:Decimal>
-                    </gex:westBoundLongitude>
-                    <gex:eastBoundLongitude>
-                        <gco:Decimal>{value}</gco:Decimal>
-                    </gex:eastBoundLongitude>
-                    <gex:southBoundLatitude>
-                        <gco:Decimal>{value}</gco:Decimal>
-                    </gex:southBoundLatitude>
-                    <gex:northBoundLatitude>
-                        <gco:Decimal>{value}</gco:Decimal>
-                    </gex:northBoundLatitude>
-                </gex:EX_GeographicBoundingBox>
-            </gex:geographicElement>
-        </gex:EX_Extent>
-    </mri:extent>
-
-    Args:
-        BaseModel (_type_): _description_
-
-    Returns:
-        _type_: _description_
-    """
-
-    westBoundLongitude: str
-    eastBoundLongitude: str
-    southBoundLatitude: str
-    northBoundLatitude: str
-    parent_element_xpath = ".//mri:MD_DataIdentification"
-
-    def compose_xml(self):
-        """Compose XML elements"""
-        xml = ET.Element(f"{{{MRI}}}extent")
-        ex_extent = ET.SubElement(xml, f"{{{GEX}}}EX_Extent")
-        gex_geographic_element = ET.SubElement(ex_extent, f"{{{GEX}}}geographicElement")
-        gex_geographic_bounding_box = ET.SubElement(
-            gex_geographic_element, f"{{{GEX}}}EX_GeographicBoundingBox"
-        )
-        gex_west_bound_longitude = ET.SubElement(
-            gex_geographic_bounding_box, f"{{{GEX}}}westBoundLongitude"
-        )
-        gco_west_value = ET.SubElement(gex_west_bound_longitude, f"{{{GCO}}}Decimal")
-        gco_west_value.text = self.westBoundLongitude
-        gex_east_bound_longitude = ET.SubElement(
-            gex_geographic_bounding_box, f"{{{GEX}}}eastBoundLongitude"
-        )
-        gco_east_value = ET.SubElement(gex_east_bound_longitude, f"{{{GCO}}}Decimal")
-        gco_east_value.text = self.eastBoundLongitude
-        gex_south_bound_latitude = ET.SubElement(
-            gex_geographic_bounding_box, f"{{{GEX}}}southBoundLatitude"
-        )
-        gco_south_value = ET.SubElement(gex_south_bound_latitude, f"{{{GCO}}}Decimal")
-        gco_south_value.text = self.southBoundLatitude
-        gex_north_bound_latitude = ET.SubElement(
-            gex_geographic_bounding_box, f"{{{GEX}}}northBoundLatitude"
-        )
-        gco_north_value = ET.SubElement(gex_north_bound_latitude, f"{{{GCO}}}Decimal")
-        gco_north_value.text = self.northBoundLatitude
-
-        return xml
-
-
-class Keyword(BaseModel):
-    """
-    XML serialisation:
-    <mri:descriptiveKeywords>
-        <mri:MD_Keywords>
-            <mri:keyword>
-                <gco:CharacterString>{keyword_value}</gco:CharacterString>
-            </mri:keyword>
-            <mri:type>
-                <mri:MD_KeywordTypeCode
-                    codeListValue={type_of_keyword_value}
-                    codeList="http://standards.iso.org/iso/19115/resources/Codelists/cat/codelists.xml#MD_KeywordTypeCode"
-                />
-            </mri:type>
-        </mri:MD_Keywords>
-    </mri:descriptiveKeywords>
-
-    Args:
-        BaseModel (_type_): _description_
-
-    Returns:
-        _type_: _description_
-    """
-
-    value: str
-    # typeOfKeyword: str
-    parent_element_xpath = ".//mri:MD_DataIdentification"
-
-    def compose_xml(self):
-        """Compose XML elements"""
-        xml = ET.Element(f"{{{MRI}}}descriptiveKeywords")
-        mri_md_keywords = ET.SubElement(xml, f"{{{MRI}}}MD_Keywords")
-        mri_keyword = ET.SubElement(mri_md_keywords, f"{{{MRI}}}keyword")
-        gco_character_string = ET.SubElement(mri_keyword, f"{{{GCO}}}CharacterString")
-        gco_character_string.text = self.value
-        # mri_type = ET.SubElement(mri_md_keywords, f"{{{MRI}}}type")
-        # ET.SubElement(
-        #     mri_type,
-        #     f"{{{MRI}}}MD_KeywordTypeCode",
-        #     attrib={
-        #         "codeList": "http://standards.iso.org/iso/19115/resources/Codelists/cat/codelists.xml#MD_KeywordTypeCode",
-        #         "codeListValue": self.typeOfKeyword,
-        #     },
-        # )
-
-        return xml
-
-
-class AssociatedRessource(BaseModel):
-    """
-    XML serialisation:
-    <mri:MD_DataIdentification>
-        <mri:associatedResource>
-            <mri:MD_AssociatedResource>
-                <mri:associationType>
-                    <mri:DS_AssociationTypeCode
-                        codeList="http://standards.iso.org/iso/19115/resources/Codelists/cat/codelists.xml#DS_AssociationTypeCode"
-                        codeListValue="{typeOfAssociation}"
-                    />
-                </mri:associationType>
-                <mri:metadataReference uuidref="{value}" />
-            </mri:MD_AssociatedResource>
-        </mri:associatedResource>
-    </mri:MD_DataIdentification>
-
-
-    Args:
-        BaseModel (_type_): _description_
-
-    Returns:
-        _type_: _description_
-    """
-
-    value: str
-    typeOfAssociation: str
-    parent_element_xpath = ".//mdb:identificationInfo"
-
-    def compose_xml(self):
-        """Compose XML elements"""
-        xml = ET.Element(f"{{{MRI}}}MD_DataIdentification")
-        mri_md_data_identification = ET.SubElement(xml, f"{{{MRI}}}associatedResource")
-        mri_associated_resource = ET.SubElement(
-            mri_md_data_identification, f"{{{MRI}}}MD_AssociatedResource"
-        )
-        mri_md_associated_resource = ET.SubElement(
-            mri_associated_resource, f"{{{MRI}}}associationType"
-        )
-        ET.SubElement(
-            mri_md_associated_resource,
-            f"{{{MRI}}}DS_AssociationTypeCode",
-            attrib={
-                "codeList": "http://standards.iso.org/iso/19115/resources/Codelists/cat/codelists.xml#DS_AssociationTypeCode",
-                "codeListValue": self.typeOfAssociation,
-            },
-        )
-        ET.SubElement(
-            mri_associated_resource,
-            f"{{{MRI}}}metadataReference",
-            attrib={"uuidref": self.value},
-        )
-
-        return xml
-
-
-class DistributionInfo(BaseModel):
-    """
-    XML serialisation:
-    <mdb:distributionInfo xmlns:geonet="http://www.fao.org/geonetwork">
-        <mrd:MD_Distribution>
-            <mrd:distributionFormat>
-                <mrd:MD_Format>
-                    <mrd:formatSpecificationCitation>
-                        <cit:CI_Citation>
-                            <cit:title>
-                                <gco:CharacterString>{distributionFormat}</gco:CharacterString>
-                            </cit:title>
-                        </cit:CI_Citation>
-                    </mrd:formatSpecificationCitation>
-                </mrd:MD_Format>
-            </mrd:distributionFormat>
-            <mrd:transferOptions>
-                <mrd:MD_DigitalTransferOptions>
-                    <mrd:onLine>
-                        <cit:CI_OnlineResource>
-                            <cit:linkage>
-                                <gco:CharacterString>{onlineResources_linkage}</gco:CharacterString>
-                            </cit:linkage>
-                            <cit:protocol>
-                                <gco:CharacterString>{onlineResources_protocol}</gco:CharacterString>
-                            </cit:protocol>
-                            <cit:name>
-                                <gco:CharacterString>{onlineResources_name}</gco:CharacterString>
-                            </cit:name>
-                            <cit:function>
-                                <cit:CI_OnLineFunctionCode
-                                    codeList="http://standards.iso.org/iso/19115/resources/Codelists/cat/codelists.xml#CI_OnLineFunctionCode"
-                                    codeListValue="{onlineResources_typeOfTransferOption}"
-                                />
-                            </cit:function>
-                        </cit:CI_OnlineResource>
-                    </mrd:onLine>
-                </mrd:MD_DigitalTransferOptions>
-            </mrd:transferOptions>
-        </mrd:MD_Distribution>
-    </mdb:distributionInfo>
-
-
-    Args:
-        BaseModel (_type_): _description_
-
-    Returns:
-        _type_: _description_
-    """
-
-    distributionFormat: Optional[str]
-    onlineResources: list = []
-    # transferOptions: list  # FIXME Replaced by onlineResources ?
-    parent_element_xpath = ".//mri:MD_DataIdentification"
-    # In transferOptions:
-    # - linkage
-    # - protocol
-    # - name
-    # - typeOfTransferOption
-
-    def compose_xml(self):
-        """Compose XML elements"""
-        xml = ET.Element(f"{{{MRD}}}MD_Distribution")
-        mrd_distribution_format = ET.SubElement(xml, f"{{{MRD}}}distributionFormat")
-        mrd_md_format = ET.SubElement(mrd_distribution_format, f"{{{MRD}}}MD_Format")
-        mrd_format_specification_citation = ET.SubElement(
-            mrd_md_format, f"{{{MRD}}}formatSpecificationCitation"
-        )
-
-        cit_ci_citation = ET.SubElement(
-            mrd_format_specification_citation, f"{{{CIT}}}CI_Citation"
-        )
-        cit_title = ET.SubElement(cit_ci_citation, f"{{{CIT}}}title")
-        gco_character_string = ET.SubElement(cit_title, f"{{{GCO}}}CharacterString")
-        gco_character_string.text = self.distributionFormat
-
-        mrd_transfer_options = ET.SubElement(xml, f"{{{MRD}}}transferOptions")
-        mrd_md_digital_transfer_options = ET.SubElement(
-            mrd_transfer_options, f"{{{MRD}}}MD_DigitalTransferOptions"
-        )
-
-        # Insert links to related online resources (WMS layers, images, websites and so on)
-        for online_resource in self.onlineResources:
-            mrd_online = ET.SubElement(
-                mrd_md_digital_transfer_options, f"{{{MRD}}}onLine"
+            # New XML elements can be duplicated and inserted at multiple points
+            #  in the xml_document depending on the parent_xpath expression.
+            insertion_points = self.record_doc.xpath(
+                composer.parent_xpath, namespaces=NAMESPACES
             )
-            cit_ci_online_resource = ET.SubElement(
-                mrd_online, f"{{{CIT}}}CI_OnlineResource"
-            )
+            for point in insertion_points:
+                point.append(new_element)
+        self._constructed = True
+        return self.get()
 
-            cit_linkage = ET.SubElement(cit_ci_online_resource, f"{{{CIT}}}linkage")
-            linkage_gco_character_string = ET.SubElement(
-                cit_linkage, f"{{{GCO}}}CharacterString"
-            )
-            linkage_gco_character_string.text = online_resource["linkage"]
+    def process_data_tree(self, data_tree: dict[str, Any]) -> "RecordDocumentBuilder":
+        """Register the composers required to build the XML representation of a record document
+        stored as a Python dictionary.
 
-            cit_protocol = ET.SubElement(cit_ci_online_resource, f"{{{CIT}}}protocol")
-            protocol_gco_character_string = ET.SubElement(
-                cit_protocol, f"{{{GCO}}}CharacterString"
-            )
-            protocol_gco_character_string.text = online_resource["protocol"]
+        The data tree is processed so its nodes are mapped to specific XML composers that are in charge
+        of enriching the initial XML template with new elements.
+        The result should be a valid GeoNetwork record document, however no validation is done here.
 
-            cit_name = ET.SubElement(cit_ci_online_resource, f"{{{CIT}}}name")
-            name_gco_character_string = ET.SubElement(
-                cit_name, f"{{{GCO}}}CharacterString"
-            )
-            name_gco_character_string.text = online_resource["name"]
+        Important notes
+        -------
+        1. This method expects `data_tree` to be a dictionary that defines a tree structure where:
+            - keys are strings and correspond to a node;
+            - values contain the children of that node.
+                List-like and dictionary values are sub-trees, any other types are treated as leafs.
+        2. Finding the relevant composer for a node in the data tree heavily relies on naming.
+        If a composer should apply to a node then the dictionary key **must** have the same name as the composer.
+        However, the first letter can be lowercase or uppercase to accommodate YAML naming conventions.
+        """
 
-            online_function_code = online_resource["onlineFunctionCode"]
-            if online_function_code:
-                cit_function = ET.SubElement(
-                    cit_ci_online_resource, f"{{{CIT}}}function"
+        # FIXME: move this in build() or add_composer() ? Problem : we don't know the `node` anymore in build().
+        self.deferred_processing["uuid"] = data_tree["identifier"]
+
+        # Compositing the record document is made by traversing `data_tree` depth-first
+        #  and applying a composer to each node.
+        # Each composer produces an XML partial which is inserted in the record template
+        #  at a location specified by the composer.
+        # Every node will be visited unless one of this node's parent has is mapped to a *leaf* composer.
+        # See @Iso19115Element.is_leaf_composer() for more information.
+        stack = [(k, v) for k, v in data_tree.items()]
+        while stack:
+            node, subtree = stack.pop(0)
+
+            # Compositing applies to each element of list-like nodes.
+            if is_list_like(subtree):
+                stack = [(node, e) for e in subtree] + stack
+                continue
+
+            # The name of the composer class to instantiate is formed by the current key
+            #  with the first letter capitalized.
+            # We assumes that keys are strings either in PascalCase or CamelCase,
+            #  as classes names usually are in PascalCase.
+            try:
+                composer_cls = str_to_composer_cls(node)
+            except AttributeError:
+                warnings.warn(
+                    f"No XML composer found for the key `{node}` in the module {__name__}. "
+                    f"A class named `{node}` was expected."
+                    f"This is a non-blocking error, compositing can continue but output XML \
+                        might be invalid."
                 )
-                cit_ci_online_function_code = ET.SubElement(
-                    cit_function, f"{{{CIT}}}CI_OnLineFunctionCode"
-                )
-                cit_ci_online_function_code.text = online_function_code
+                composer = None
+            else:
+                composer = composer_cls(subtree)
+                self.add_composer(composer)
 
-        return xml
+                # Composers that need deferred processing are retained and made accessible to external code.
+                # This is required for batch-uploads when documents to push to GeoNetwork reference each others.
+                # Because relationships between resources use the resource's uuid assigned by GeoNetwork,
+                #  all documents have to be pushed before their uuids can be retrieved to update the relationships
+                # FIXME: move this in build() or add_composer() ? Problem : we don't know the `node` anymore in build().
+                if composer.is_deferred_processing():
+                    self.deferred_processing[node].append(composer.parameters)
+            finally:
+                # If the traversed entry is a sub-tree, we want to visit it
+                #  unless the composer takes care of creating XML content for the entire sub-tree.
+                if isinstance(subtree, dict):
+                    if not composer or not composer.is_leaf_composer():
+                        children = [(k, v) for k, v in subtree.items()]
+                        stack = children + stack
+        return self
+
+    def get(self) -> ET._ElementTree:
+        """Return the record document in its current state."""
+        return self.record_doc
+
+    def add_composer(self, composer: "XMLComposer") -> "RecordDocumentBuilder":
+        """Append a new composer to the build chain."""
+        self._composers.append(composer)
+        return self
+
+        # # -- BLock MD_Distribution --
+
+        # # Create and insert the DISTRIBUTIONINFO elements
+        # if "distributionInfo" in self.data_dict:
+        #     data = self.data_dict.get("distributionInfo")
+        #     for distribution in data:
+        #         distribution_info_element = DistributionInfo(**distribution)
+        #         self._insert_xml(
+        #             distribution_info_element.parent_element_xpath,
+        #             xml_doc,
+        #             distribution_info_element.compose_xml(),
+        #         )
+
+        #
+
+        # # Create and insert the RESOURCELINEAGE elements
+        # if "resourceLineage" in self.data_dict:
+        #     relations = self.data_dict.get("resourceLineage")
+        #     for relation in relations:
+        #         if self._is_valid_uuid(relation):
+        #             resource_info_element = ResourceLineage(uuidref=relation)
+        #             self._insert_xml(
+        #                 resource_info_element.parent_element_xpath,
+        #                 xml_doc,
+        #                 resource_info_element.compose_xml(),
+        #             )
+        #         else:
+        #             self.postponed["resourceLineage"].append(relation)
 
 
-class ResourceLineage(BaseModel):
+def insert_namespace(xml_string: str) -> str:
+    xmlns = " ".join(f'xmlns:{ns}="{url}"' for ns, url in NAMESPACES.items())
+    namespaced = re.sub(
+        r"<(.+?)>", r"<\1 {xmlns}>".format(xmlns=xmlns), xml_string, count=1
+    )
+    return namespaced
+
+
+def load_element_template(cls: str) -> str:
+    here = os.path.dirname(__file__)
+    path = f"{here}/../xml/partials/{cls.__name__.lower()}.xml"
+    with open(path, "r") as t:
+        return t.read()
+
+
+def is_valid_uuid(uuid_: uuid.uuid4):
+    try:
+        uuid_obj = uuid.UUID(uuid_, version=4)
+    except ValueError:
+        return False
+    return str(uuid_obj) == uuid_
+
+
+class XMLComposer:
+    template: ClassVar[ET.ElementTree] = ""
+    insertion_points: ClassVar[dict[str, Union[str, tuple[str, str]]]] = {}
+    parent_xpath: ClassVar[str] = "./"
+
     """
-    XML serialisation:
-    <mrl:LI_Lineage>
-        <mrl:source uuidref="{value}"
-                    xlink:title="{title to fetch}"
-        />
-    </mrl:LI_Lineage>
+    The default behavior of a RecordDocumentBuilder is to traverse a record tree depth-first
+    and apply a composer to every node.
+    However, composers are often responsible for entire part of a GeoNetwork XML record and
+    visiting the children of a node mapped to such composer is not desired.
 
-
-    Args:
-        BaseModel (_type_): _description_
-
-    Returns:
-        _type_: _description_
+    Setting a composer as *leaf* will prevent a RecordDocumentBuilder to visit the descendants
+    of the node mapped to this composer in a record tree.
+    In short, if you create a new composer class that creates XML for a entire sub-tree of a record tree into XML,
+    make it a leaf.
     """
+    is_leaf: bool = True
 
-    uuidref: str
-    parent_element_xpath = ".//mdb:resourceLineage"
-
-    # TO TEST
-    # xlink:title disable for now
-    # If geonetwork don't add it automatically
-    # we need to fetch the record's title before we can add it
-    def compose_xml(self):
-        """Compose XML elements"""
-        xml = ET.Element(f"{{{MRL}}}LI_Lineage")
-        ET.SubElement(xml, f"{{{MRL}}}source", attrib={"uuidref": self.uuidref})
-
-        return xml
-
-
-class Stakeholders(BaseModel):
-    """
-    XML serialisation:
-        <mri:pointOfContact>
-            <cit:CI_Responsibility>
-               <cit:role>
-                  <cit:CI_RoleCode
-                        codeList="http://standards.iso.org/iso/19115/resources/Codelists/cat/codelists.xml#CI_RoleCode"
-                        codeListValue="{role}"
-                    />
-               </cit:role>
-               <cit:party>
-                  <cit:CI_Individual>
-                     <cit:name>
-                        <gco:CharacterString>{name}</gco:CharacterString>
-                     </cit:name>
-                  </cit:CI_Individual>
-               </cit:party>
-            </cit:CI_Responsibility>
-         </mri:pointOfContact>
-
-
-    Args:
-        BaseModel (_type_): _description_
-
-    Returns:
-        _type_: _description_
-    """
-
-    role: str
-    name: str
-    parent_element_xpath = ".//mdb:identificationInfo/mri:MD_DataIdentification"
-
-    def compose_xml(self):
-        """Compose XML elements"""
-        xml = ET.Element(f"{{{MRI}}}pointOfContact")
-        cit_ci__responsibility = ET.SubElement(xml, f"{{{CIT}}}CI_Responsibility")
-        cit_role = ET.SubElement(cit_ci__responsibility, f"{{{CIT}}}role")
-        ET.SubElement(
-            cit_role,
-            f"{{{CIT}}}CI_RoleCode",
-            attrib={
-                "codeList": "http://standards.iso.org/iso/19115/resources/Codelists/cat/codelists.xml#CI_RoleCode",
-                "codeListValue": self.role,
-            },
-        )
-        cit_party = ET.SubElement(cit_ci__responsibility, f"{{{CIT}}}party")
-        cit_ci_individual = ET.SubElement(cit_party, f"{{{CIT}}}CI_Individual")
-        cit_name = ET.SubElement(cit_ci_individual, f"{{{CIT}}}name")
-        gco_character_string = ET.SubElement(cit_name, f"{{{GCO}}}CharacterString")
-        gco_character_string.text = self.name
-
-        return xml
-
-
-class Overview(BaseModel):
-    """
-    XML serialisation:
-        <mri:graphicOverview>
-            <mcc:MD_BrowseGraphic>
-               <mcc:fileName>
-                  <gco:CharacterString>{url}</gco:CharacterString>
-               </mcc:fileName>
-               <mcc:fileDescription>
-                  <gco:CharacterString>Overview</gco:CharacterString>
-               </mcc:fileDescription>
-            </mcc:MD_BrowseGraphic>
-        </mri:graphicOverview>
-
-    Args:
-        BaseModel (_type_): _description_
-
-    Returns:
-        _type_: _description_
-    """
-
-    url: str
-    parent_element_xpath = ".//mri:MD_DataIdentification"
-
-    def compose_xml(self):
-        """Compose XML elements"""
-        xml = ET.Element(f"{{{MRI}}}graphicOverview")
-        mcc_md_browse_graphic = ET.SubElement(xml, f"{{{MCC}}}MD_BrowseGraphic")
-        mcc_file_name = ET.SubElement(mcc_md_browse_graphic, f"{{{MCC}}}fileName")
-        name_gco_character_string = ET.SubElement(
-            mcc_file_name, f"{{{GCO}}}CharacterString"
-        )
-        name_gco_character_string.text = self.url
-
-        mcc_file_description = ET.SubElement(
-            mcc_md_browse_graphic, f"{{{MCC}}}fileDescription"
-        )
-        description_gco_character_string = ET.SubElement(
-            mcc_file_description, f"{{{GCO}}}CharacterString"
-        )
-        description_gco_character_string.text = "Overview"
-
-        return xml
-
-
-class IsoDocumentBuilder:
-    """The main XML sheet"""
-
-    __template_path__ = XML_TEMPLATE
-
-    def __init__(self, data_dict: dict) -> None:
-        self.data_dict = data_dict
-        self.postponed = defaultdict(list)
-        self.postponed["uuid"] = self.data_dict["identifier"]
-
-    @staticmethod
-    def load_all(yaml_multidoc) -> List["IsoDocumentBuilder"]:
-        """Load all yaml documents present in file"""
-        doc_dicts = yaml.load_all(yaml_multidoc)
-        for data in doc_dicts:
-            yield IsoDocumentBuilder(data)
-
-    def _is_valid_uuid(self, uuid_to_test: uuid.uuid4):
+    def __new__(cls, *args) -> "XMLComposer":
         try:
-            uuid_obj = uuid.UUID(uuid_to_test, version=4)
-        except ValueError:
-            return False
-        return str(uuid_obj) == uuid_to_test
+            template = load_element_template(cls)
+            xml_element = insert_namespace(template)
+            obj = super(XMLComposer, cls).__new__(cls)
+            obj.xml_element = ET.fromstring(xml_element)
+            obj.deferred_id = None
+            obj.parameters = {}
+            return obj
+        except FileNotFoundError as e:
+            raise ValueError(f"Empty XML template for {cls}") from e
 
-    def return_xml(self):
-        """Indent XML for better indentation and print the result"""
-        ET.indent(self)
-        ET.dump(self)
+    def __init__(self, *args) -> None:
+        """Create a new GeoNetwork record composer in charge of the generation of a part of a XML record document."""
+        pass
 
-    def _make_xml_element(self, factory: type, **kwargs) -> ET.Element:
-        return factory(**kwargs).compose_xml()
+    def compose(self) -> ET._Element:
+        for k, v in self.parameters.items():
+            point = self.insertion_points[k]
+            # If point is a tuple it means that the insertion point is an attribute.
+            if isinstance(point, tuple):
+                xpath_expr, attr = point
+            else:
+                xpath_expr, attr = point, None
 
-    def _insert_xml(
-        self, insert_point: str, doc: ET.ElementTree, element: ET.Element
-    ) -> None:
-        parent_element = doc.find(insert_point, PREFIX_MAP)
-        parent_element.append(element)
+            matches = self.xml_element.xpath(xpath_expr, namespaces=NAMESPACES)
 
-    def compose_xml(self):
-        """Build XML file from a yaml document"""
-        xml = ET.parse(self.__class__.__template_path__)
+            if not matches:
+                raise ValueError(f"Could not locate {k} at {v} in {self}")
 
-        # Register every XML namespace used in ISO19115
-        for namespace, uri in PREFIX_MAP.items():
-            ET.register_namespace(namespace, uri)
-
-        # -- BLock MD_DataIdentification --
-
-        # Create and insert the TITLE element
-        if "title" in self.data_dict:
-            title_data = self.data_dict.get("title")
-            title_element = Title(title=title_data)
-            self._insert_xml(
-                title_element.parent_element_xpath, xml, title_element.compose_xml()
-            )
-
-        # Create and insert the DATE element
-        if "date" in self.data_dict:
-            date_data = self.data_dict.get("date")
-            for event in date_data:
-                date_element = Date(**event)
-                self._insert_xml(
-                    date_element.parent_element_xpath, xml, date_element.compose_xml()
-                )
-
-        # Create and insert the PRESENTATIONFORM element
-        if "presentationForm" in self.data_dict:
-            presentation_data = self.data_dict.get("presentationForm")
-            pform_element = PresentationForm(presentationForm=presentation_data)
-            self._insert_xml(
-                pform_element.parent_element_xpath, xml, pform_element.compose_xml()
-            )
-
-        # Create and insert the TEMPORALEXTENT element
-        if "extent" in self.data_dict and "temporalExtent" in self.data_dict["extent"]:
-            data = self.data_dict.get("extent")
-            tempextent_element = TemporalExtent(**data["temporalExtent"])
-            self._insert_xml(
-                tempextent_element.parent_element_xpath,
-                xml,
-                tempextent_element.compose_xml(),
-            )
-
-        # Create and insert the GEOEXTENT element
-        if "extent" in self.data_dict and "geoExtent" in self.data_dict["extent"]:
-            data = self.data_dict.get("extent")
-            geoextent_element = GeoExtent(**data["geoExtent"])
-            self._insert_xml(
-                geoextent_element.parent_element_xpath,
-                xml,
-                geoextent_element.compose_xml(),
-            )
-
-        # Create and insert the KEYWORD elements
-        if "keywords" in self.data_dict:
-            data = self.data_dict.get("keywords")
-            for keyword in data:
-                keyword_element = Keyword(**keyword)
-                self._insert_xml(
-                    keyword_element.parent_element_xpath,
-                    xml,
-                    keyword_element.compose_xml(),
-                )
-
-        # Create and insert the ASSOCIATEDRESSOURCE elements
-        if "associatedResource" in self.data_dict:
-            data = self.data_dict.get("associatedResource")
-            for resource in data:
-                if self._is_valid_uuid(resource["value"]):
-                    associated_resource_element = AssociatedRessource(**resource)
-                    self._insert_xml(
-                        associated_resource_element.parent_element_xpath,
-                        xml,
-                        associated_resource_element.compose_xml(),
-                    )
+            for m in matches:
+                if attr:
+                    m.set(attr, v)
                 else:
-                    self.postponed["associatedResource"].append(resource)
+                    m.text = v
+        return self.xml_element
 
-        # Create and insert the STAKEHOLDERS elements
-        if "stakeholders" in self.data_dict:
-            data = self.data_dict.get("stakeholders")
-            for stakeholder in data:
-                stakeholder_element = Stakeholders(**stakeholder)
-                self._insert_xml(
-                    stakeholder_element.parent_element_xpath,
-                    xml,
-                    stakeholder_element.compose_xml(),
-                )
+    def is_deferred_processing(self) -> bool:
+        """Does this composer require post-processing ?"""
+        return bool(self.deferred_id)
 
-        # Create and insert the OVERVIEW element
-        if "overview" in self.data_dict:
-            url_data = self.data_dict.get("overview")
-            overview_element = Overview(url=url_data)
-            self._insert_xml(
-                overview_element.parent_element_xpath,
-                xml,
-                overview_element.compose_xml(),
-            )
+    def is_leaf_composer(self) -> bool:
+        """Does this composer apply to a whole sub-tree instead of on a single node ?"""
+        return self.is_leaf
 
-        # -- BLock MD_Distribution --
+    def toJSON(self) -> str:
+        return json.dumps(self.parameters)
 
-        # Create and insert the DISTRIBUTIONINFO elements
-        if "distributionInfo" in self.data_dict:
-            data = self.data_dict.get("distributionInfo")
-            for distribution in data:
-                distribution_info_element = DistributionInfo(**distribution)
-                self._insert_xml(
-                    distribution_info_element.parent_element_xpath,
-                    xml,
-                    distribution_info_element.compose_xml(),
-                )
+    def __str__(self) -> str:
+        """Return the composed XML element in string format."""
+        return ET.tostring(self.xml_element, pretty_print=True).decode()
 
-        # -- BLock resourceLineage --
+    def __repr__(self) -> str:
+        """Return the rendered XML document in string format."""
+        return self.xml_element
 
-        # Create and insert the RESOURCELINEAGE elements
-        if "resourceLineage" in self.data_dict:
-            relations = self.data_dict.get("resourceLineage")
-            for relation in relations:
-                if self._is_valid_uuid(relation):
-                    resource_info_element = ResourceLineage(uuidref=relation)
-                    self._insert_xml(
-                        resource_info_element.parent_element_xpath,
-                        xml,
-                        resource_info_element.compose_xml(),
-                    )
-                else:
-                    self.postponed["resourceLineage"].append(relation)
 
-        return xml
+class Identification(XMLComposer):
+    insertion_points = {"title": "//cit:title/gco:CharacterString"}
+    parent_xpath = "./mdb:identificationInfo/mri:MD_DataIdentification"
+
+    def __init__(self, record_tree: str) -> None:
+        self.parameters = {"title": record_tree["title"]}
+
+
+class Events(XMLComposer):
+    insertion_points = {
+        "date": "//cit:date/gco:Date",
+        "event_type": (
+            "//cit:dateType/cit:CI_DateTypeCode",
+            "codeListValue",
+        ),
+    }
+    parent_xpath = "./mdb:identificationInfo/mri:MD_DataIdentification/mri:citation/cit:CI_Citation"
+
+    def __init__(self, record_tree: dict) -> None:
+        self.parameters = {
+            "date": record_tree["value"],
+            "event_type": record_tree["event"],
+        }
+
+
+class PresentationForm(XMLComposer):
+    insertion_points = {
+        "presentation_format": (
+            "//cit:CI_PresentationFormCode",
+            "codeListValue",
+        ),
+    }
+    parent_xpath = "./mdb:identificationInfo/mri:MD_DataIdentification/mri:citation/cit:CI_Citation"
+
+    def __init__(self, record_tree: str) -> None:
+        self.parameters = {"presentation_format": record_tree}
+
+
+class Extent(XMLComposer):
+    insertion_points = {}
+    parent_xpath = "./mdb:identificationInfo/mri:MD_DataIdentification"
+
+    # We want the document builder to visit children of "Extent" nodes in a record tree.
+    is_leaf = False
+
+
+class TemporalExtent(XMLComposer):
+    insertion_points = {
+        "begin_position": "//gml:beginPosition",
+        "end_position": "//gml:endPosition",
+    }
+    parent_xpath = (
+        "./mdb:identificationInfo/mri:MD_DataIdentification/mri:extent/gex:EX_Extent"
+    )
+
+    def __init__(self, record_tree: dict) -> None:
+        self.parameters = {
+            "begin_position": record_tree["beginPosition"],
+            "end_position": record_tree["endPosition"],
+        }
+
+
+class GeoExtent(XMLComposer):
+    insertion_points = {
+        "westbound_longitude": ".//gex:westBoundLongitude/gco:Decimal",
+        "eastbound_longitude": ".//gex:eastBoundLongitude/gco:Decimal",
+        "southbound_latitude": ".//gex:southBoundLatitude/gco:Decimal",
+        "northbound_latitude": ".//gex:northBoundLatitude/gco:Decimal",
+    }
+    parent_xpath = (
+        "./mdb:identificationInfo/mri:MD_DataIdentification/mri:extent/gex:EX_Extent"
+    )
+
+    def __init__(self, record_tree: dict) -> None:
+        self.parameters = {
+            "westbound_longitude": record_tree["westBoundLongitude"],
+            "eastbound_longitude": record_tree["eastBoundLongitude"],
+            "southbound_latitude": record_tree["southBoundLatitude"],
+            "northbound_latitude": record_tree["northBoundLatitude"],
+        }
+
+
+class Keywords(XMLComposer):
+    insertion_points = {
+        "keyword": "//mri:keyword/gco:CharacterString",
+        "keyword_type": ("//mri:type/mri:MD_KeywordTypeCode", "codeListValue"),
+    }
+    parent_xpath = "./mdb:identificationInfo/mri:MD_DataIdentification"
+
+    def __init__(self, record_tree: dict) -> None:
+        self.parameters = {
+            "keyword": record_tree["value"],
+            "keyword_type": "place",  # FIXME hardcoded placeholder value
+        }
+
+
+class AssociatedResource(XMLComposer):
+    insertion_points = {
+        "value": ("//mri:metadataReference", "uuidref"),
+        "typeOfAssociation": (
+            "//mri:associationType/mri:DS_AssociationTypeCode",
+            "codeListValue",
+        ),
+    }
+    parent_xpath = "./mdb:identificationInfo/mri:MD_DataIdentification"
+
+    def __init__(self, record_tree: dict) -> None:
+        self.parameters = {
+            "value": record_tree["value"],
+            "typeOfAssociation": record_tree["typeOfAssociation"],
+        }
+
+        should_defer_id = not is_valid_uuid(self.parameters["value"])
+        if should_defer_id:
+            self.deferred_id = self.parameters["value"]
+
+
+class DistributionInfo(XMLComposer):
+    insertion_points = {
+        "distributor": "//cit:CI_Organisation/cit:name/gco:CharacterString",
+        "mail": "//cit:electronicMailAddress/gco:CharacterString",
+    }
+    parent_xpath = "."
+
+    # DistributionInfo is typically composed of one or several OnlineResources
+    is_leaf = False
+
+    def __init__(self, record_tree: dict) -> None:
+        self.parameters = {
+            "distributor": record_tree["distributor"],
+            "mail": record_tree["distributor_mail"],
+        }
+
+
+class DistributionFormat(XMLComposer):
+    insertion_points = {
+        "distribution_format": "//mrd:formatSpecificationCitation/cit:CI_Citation/cit:title/gco:CharacterString",
+    }
+    parent_xpath = "./mdb:identificationInfo/mri:MD_DataIdentification/mdb:distributionInfo/mrd:MD_Distribution"
+
+    # DistributionInfo is typically composed of one or several OnlineResources
+    is_leaf = False
+
+    def __init__(self, record_tree: dict) -> None:
+        self.parameters = {"distribution_format": record_tree}
+
+
+class OnlineResources(XMLComposer):
+    insertion_points = {
+        "linkage": "//cit:CI_OnlineResource/cit:linkage/gco:CharacterString",
+        "protocol": "//cit:CI_OnlineResource/cit:protocol/gco:CharacterString",
+        "name": "//cit:CI_OnlineResource/cit:name/gco:CharacterString",
+        "type": (
+            "//cit:CI_OnlineResource/cit:function/cit:CI_OnLineFunctionCode",
+            "codeListValue",
+        ),
+    }
+
+    parent_xpath = "./mdb:identificationInfo/mri:MD_DataIdentification/mdb:distributionInfo/mrd:MD_Distribution/mrd:transferOptions/mrd:MD_DigitalTransferOptions"
+
+    def __init__(self, record_tree: dict) -> None:
+        self.parameters = {
+            "linkage": record_tree["linkage"],
+            "protocol": record_tree["protocol"],
+            "name": record_tree["name"],
+            "type": record_tree["onlineFunctionCode"],
+        }
+
+
+class Individuals(XMLComposer):
+    insertion_points = {
+        "name": "//cit:CI_Individual/cit:name/gco:CharacterString",
+        "role": ("//cit:role/cit:CI_RoleCode", "codeListValue"),
+    }
+
+    parent_xpath = "./mdb:identificationInfo/mri:MD_DataIdentification"
+
+    def __init__(self, record_tree: dict) -> None:
+        self.parameters = {
+            "name": record_tree["name"],
+            "role": record_tree["role"],
+        }
+
+
+class Organisations(XMLComposer):
+    insertion_points = {
+        "name": "//cit:CI_Organisation/cit:name/gco:CharacterString",
+        "role": ("//cit:role/cit:CI_RoleCode", "codeListValue"),
+        "mail": "//cit:electronicMailAddress/gco:CharacterString",
+    }
+
+    parent_xpath = "./mdb:identificationInfo/mri:MD_DataIdentification"
+
+    def __init__(self, record_tree: dict) -> None:
+        self.parameters = {
+            "name": record_tree["name"],
+            "role": record_tree["role"],
+            "mail": record_tree["mail"],
+        }
+
+
+class Overview(XMLComposer):
+    insertion_points = {
+        "overview": "//mcc:fileName/gco:CharacterString",
+    }
+    parent_xpath = "./mdb:identificationInfo/mri:MD_DataIdentification"
+
+    def __init__(self, record_tree: str) -> None:
+        self.parameters = {"overview": record_tree}
+
+
+class ResourceLineage(XMLComposer):
+    # In mrl:source, attribute xlink:title should (#TODO verify ?) be inserted automatically by GeoNetwork.
+    insertion_points = {
+        "value": ("//mrl:source", "uuidref"),
+    }
+    parent_xpath = "./mdb:resourceLineage"
+
+    def __init__(self, record_tree: str) -> None:
+        self.parameters = {"value": record_tree}
+        should_defer_id = not is_valid_uuid(self.parameters["value"])
+        if should_defer_id:
+            self.deferred_id = self.parameters["value"]
+
+
+###
+# Helper functions
+###
+def str_to_composer_cls(tree_node: str) -> type:
+    """Return a composer class for a record tree node.
+
+    This function tries to instanciates a sublclass of Iso19115Element from this module
+    whose name is the same as the YAML key, with the first letter capitalized.
+    An AttributeError is raised if the class does not exist.
+    """
+    class_name = tree_node[0].upper() + tree_node[1:]
+    class_ = getattr(sys.modules[__name__], class_name)
+
+    if class_ == "Iso19115Element":
+        warnings.warn(
+            f"You tried to create a {class_} object"
+            " but this class is not meant to be instanciated directly.",
+            UserWarning,
+        )
+    assert issubclass(class_, XMLComposer)
+    return class_
+
+
+def is_list_like(obj: Any) -> bool:
+    """Return True if `obj` is list-like (i.e. a `collections.abc.Iterable`)
+    but neither a string, bytes nor a dictionary."""
+    return isinstance(obj, collections.abc.Iterable) and not isinstance(
+        obj, (str, bytes, dict)
+    )
