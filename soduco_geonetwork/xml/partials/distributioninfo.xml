@@ -1,9 +1,7 @@
-<mdb:distributionInfo xmlns:geonet="http://www.fao.org/geonetwork">
+<mdb:distributionInfo>
     <mrd:MD_Distribution>
-        <mrd:transferOptions>
-            <mrd:MD_DigitalTransferOptions>
-            </mrd:MD_DigitalTransferOptions>
-        </mrd:transferOptions>
+        <mrd:distributionFormat>
+        </mrd:distributionFormat>
         <mrd:distributor>
             <mrd:MD_Distributor>
                 <mrd:distributorContact>
@@ -35,5 +33,9 @@
                 </mrd:distributorContact>
             </mrd:MD_Distributor>
         </mrd:distributor>
+        <mrd:transferOptions>
+            <mrd:MD_DigitalTransferOptions>
+            </mrd:MD_DigitalTransferOptions>
+        </mrd:transferOptions>
     </mrd:MD_Distribution>
 </mdb:distributionInfo>

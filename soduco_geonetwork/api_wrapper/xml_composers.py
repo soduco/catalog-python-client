@@ -422,7 +422,7 @@ class Keywords(XMLComposer):
     def __init__(self, record_tree: dict) -> None:
         self.parameters = {
             "keyword": record_tree["value"],
-            "keyword_type": "place",  # FIXME hardcoded placeholder value
+            "keyword_type": record_tree["typeOfKeyword"] # "place",  # FIXME hardcoded placeholder value
         }
 
 
@@ -468,10 +468,8 @@ class DistributionFormat(XMLComposer):
     insertion_points = {
         "distribution_format": "//mrd:formatSpecificationCitation/cit:CI_Citation/cit:title/gco:CharacterString",
     }
-    parent_xpath = "./mdb:identificationInfo/mri:MD_DataIdentification/mdb:distributionInfo/mrd:MD_Distribution"
-
-    # DistributionInfo is typically composed of one or several OnlineResources
-    is_leaf = False
+    # parent_xpath = "./mdb:identificationInfo/mri:MD_DataIdentification/mdb:distributionInfo/mrd:MD_Distribution"
+    parent_xpath = "./mdb:distributionInfo/mrd:MD_Distribution/mrd:distributionFormat"
 
     def __init__(self, record_tree: dict) -> None:
         self.parameters = {"distribution_format": record_tree}
@@ -488,7 +486,8 @@ class OnlineResources(XMLComposer):
         ),
     }
 
-    parent_xpath = "./mdb:identificationInfo/mri:MD_DataIdentification/mdb:distributionInfo/mrd:MD_Distribution/mrd:transferOptions/mrd:MD_DigitalTransferOptions"
+    #parent_xpath = "./mdb:identificationInfo/mri:MD_DataIdentification/mdb:distributionInfo/mrd:MD_Distribution/mrd:transferOptions/mrd:MD_DigitalTransferOptions"
+    parent_xpath = "./mdb:distributionInfo/mrd:MD_Distribution/mrd:transferOptions/mrd:MD_DigitalTransferOptions"
 
     def __init__(self, record_tree: dict) -> None:
         self.parameters = {
