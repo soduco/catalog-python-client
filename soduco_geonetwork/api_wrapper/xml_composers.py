@@ -202,35 +202,6 @@ class RecordDocumentBuilder:
         self._composers.append(composer)
         return self
 
-        # # -- BLock MD_Distribution --
-
-        # # Create and insert the DISTRIBUTIONINFO elements
-        # if "distributionInfo" in self.data_dict:
-        #     data = self.data_dict.get("distributionInfo")
-        #     for distribution in data:
-        #         distribution_info_element = DistributionInfo(**distribution)
-        #         self._insert_xml(
-        #             distribution_info_element.parent_element_xpath,
-        #             xml_doc,
-        #             distribution_info_element.compose_xml(),
-        #         )
-
-        #
-
-        # # Create and insert the RESOURCELINEAGE elements
-        # if "resourceLineage" in self.data_dict:
-        #     relations = self.data_dict.get("resourceLineage")
-        #     for relation in relations:
-        #         if self._is_valid_uuid(relation):
-        #             resource_info_element = ResourceLineage(uuidref=relation)
-        #             self._insert_xml(
-        #                 resource_info_element.parent_element_xpath,
-        #                 xml_doc,
-        #                 resource_info_element.compose_xml(),
-        #             )
-        #         else:
-        #             self.postponed["resourceLineage"].append(relation)
-
 
 def insert_namespace(xml_string: str) -> str:
     xmlns = " ".join(f'xmlns:{ns}="{url}"' for ns, url in NAMESPACES.items())
