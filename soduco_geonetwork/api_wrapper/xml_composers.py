@@ -489,6 +489,7 @@ class Organisations(XMLComposer):
         "name": "//cit:CI_Organisation/cit:name/gco:CharacterString",
         "role": ("//cit:role/cit:CI_RoleCode", "codeListValue"),
         "mail": "//cit:electronicMailAddress/gco:CharacterString",
+        "logo": "//cit:logo//mcc:fileName/gco:CharacterString"
     }
 
     parent_xpath = "./mdb:identificationInfo/mri:MD_DataIdentification"
@@ -498,6 +499,7 @@ class Organisations(XMLComposer):
             "name": record_tree["name"],
             "role": record_tree["role"],
             "mail": record_tree["mail"],
+            "logo": record_tree["logo"]
         }
 
 
