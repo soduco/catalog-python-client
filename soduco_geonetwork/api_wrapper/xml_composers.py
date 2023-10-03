@@ -417,11 +417,13 @@ class AssociatedResource(XMLComposer):
         if should_defer_id:
             self.deferred_id = self.parameters["value"]
 
-
+# TODO Merge with Organisations and Individuals builders
+# Distributor is an Individual or ogranisation with fixed "role" value
 class DistributionInfo(XMLComposer):
     insertion_points = {
         "distributor": "//cit:CI_Organisation/cit:name/gco:CharacterString",
         "mail": "//cit:electronicMailAddress/gco:CharacterString",
+        "distributor_logo": "//cit:logo//mcc:fileName/gco:CharacterString",
     }
     parent_xpath = "."
 
@@ -432,6 +434,7 @@ class DistributionInfo(XMLComposer):
         self.parameters = {
             "distributor": record_tree["distributor"],
             "mail": record_tree["distributor_mail"],
+            "distributor_logo": record_tree["distributor_logo"],
         }
 
 
