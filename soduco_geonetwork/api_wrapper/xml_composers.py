@@ -434,9 +434,9 @@ class DistributionInfo(XMLComposer):
         self.parameters = {
             "distributor": record_tree["distributor"],
             "mail": record_tree["distributor_mail"],
-            "distributor_logo": record_tree["distributor_logo"],
         }
-
+        if record_tree["distributor_logo"] is not None:
+            self.parameters.update({"distributor_logo": record_tree["distributor_logo"]})
 
 class DistributionFormat(XMLComposer):
     insertion_points = {
@@ -492,7 +492,7 @@ class Organisations(XMLComposer):
         "name": "//cit:CI_Organisation/cit:name/gco:CharacterString",
         "role": ("//cit:role/cit:CI_RoleCode", "codeListValue"),
         "mail": "//cit:electronicMailAddress/gco:CharacterString",
-        "logo": "//cit:logo//mcc:fileName/gco:CharacterString"
+        "logo": "//cit:logo//mcc:fileName/gco:CharacterString",
     }
 
     parent_xpath = "./mdb:identificationInfo/mri:MD_DataIdentification"
@@ -502,8 +502,9 @@ class Organisations(XMLComposer):
             "name": record_tree["name"],
             "role": record_tree["role"],
             "mail": record_tree["mail"],
-            "logo": record_tree["logo"]
         }
+        if record_tree["logo"] is not None:
+            self.parameters.update({"logo": record_tree["logo"]})
 
 
 class Overview(XMLComposer):
