@@ -27,6 +27,13 @@
                                         </cit:address>
                                     </cit:CI_Contact>
                                 </cit:contactInfo>
+                                <cit:logo>
+                                    <mcc:MD_BrowseGraphic>
+                                        <mcc:fileName>
+                                            <gco:CharacterString>{DISTRIBUTOR_LOGO}</gco:CharacterString>
+                                        </mcc:fileName>
+                                    </mcc:MD_BrowseGraphic>
+                                </cit:logo>
                             </cit:CI_Organisation>
                         </cit:party>
                     </cit:CI_Responsibility>
