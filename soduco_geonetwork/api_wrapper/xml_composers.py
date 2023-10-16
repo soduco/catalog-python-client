@@ -435,7 +435,7 @@ class DistributionInfo(XMLComposer):
             "distributor": record_tree["distributor"],
             "mail": record_tree["distributor_mail"],
         }
-        if record_tree["distributor_logo"] is not None:
+        if "distributor_logo" in record_tree and record_tree["distributor_logo"] is not None:
             self.parameters.update({"distributor_logo": record_tree["distributor_logo"]})
 
 class DistributionFormat(XMLComposer):
@@ -503,7 +503,7 @@ class Organisations(XMLComposer):
             "role": record_tree["role"],
             "mail": record_tree["mail"],
         }
-        if record_tree["logo"] is not None:
+        if "logo" in record_tree and record_tree["logo"] is not None:
             self.parameters.update({"logo": record_tree["logo"]})
 
 
