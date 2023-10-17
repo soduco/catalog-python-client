@@ -458,6 +458,7 @@ class OnlineResources(XMLComposer):
             "//cit:CI_OnlineResource/cit:function/cit:CI_OnLineFunctionCode",
             "codeListValue",
         ),
+        "description": "//cit:CI_OnlineResource/cit:description/gco:CharacterString",
     }
 
     #parent_xpath = "./mdb:identificationInfo/mri:MD_DataIdentification/mdb:distributionInfo/mrd:MD_Distribution/mrd:transferOptions/mrd:MD_DigitalTransferOptions"
@@ -470,6 +471,9 @@ class OnlineResources(XMLComposer):
             "name": record_tree["name"],
             "type": record_tree["onlineFunctionCode"],
         }
+
+        if "description" in record_tree and record_tree["description"] is not None:
+            self.parameters.update({"description": record_tree["description"]})
 
 
 class Individuals(XMLComposer):

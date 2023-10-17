@@ -15,5 +15,8 @@
                 codeListValue="{VALUE_ONLINERESOURCE_TYPE}"
             />
         </cit:function>
+        <cit:description>
+            <gco:CharacterString>{VALUE_ONLINERESOURCE_DESCRIPTION}</gco:CharacterString>
+         </cit:description>        
     </cit:CI_OnlineResource>
 </mrd:onLine>
