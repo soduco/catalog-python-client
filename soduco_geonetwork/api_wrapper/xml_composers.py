@@ -249,6 +249,8 @@ class XMLComposer:
             template = load_element_template(cls)
             xml_element = insert_namespace(template)
             obj = super(XMLComposer, cls).__new__(cls)
+            # print(f"template={template}")
+            # print(f"xml_element={xml_element}")
             obj.xml_element = ET.fromstring(xml_element)
             obj.deferred_id = None
             obj.parameters = {}
@@ -302,11 +304,42 @@ class XMLComposer:
 
 
 class Identification(XMLComposer):
-    insertion_points = {"title": "//cit:title/gco:CharacterString"}
+    insertion_points = {
+        "title": "//cit:title/gco:CharacterString"
+    }
     parent_xpath = "./mdb:identificationInfo/mri:MD_DataIdentification"
 
     def __init__(self, record_tree: str) -> None:
-        self.parameters = {"title": record_tree["title"]}
+        self.parameters = {
+            "title": record_tree["title"]
+        }
+
+
+class Abstract(XMLComposer):
+    insertion_points = {
+        "abstract": "//mri:abstract/gco:CharacterString"
+    }
+    parent_xpath = "./mdb:identificationInfo/mri:MD_DataIdentification"
+
+    def __init__(self, record_tree: str) -> None:
+        self.parameters = {
+            "abstract": record_tree
+        }
+
+
+class Scope(XMLComposer):
+    insertion_points = {
+        "scope": (
+            "//mdb:metadataScope/mdb:MD_MetadataScope/mdb:resourceScope/mcc:MD_ScopeCode",
+            "codeListValue",
+        )
+    }
+    parent_xpath = "."
+
+    def __init__(self, record_tree: str) -> None:
+        self.parameters = {
+            "scope": record_tree
+        }
 
 
 class Events(XMLComposer):

@@ -46,18 +46,6 @@
          </lan:characterEncoding>
       </lan:PT_Locale>
    </mdb:defaultLocale>
-   <mdb:metadataScope>
-      <mdb:MD_MetadataScope>
-         <mdb:resourceScope>
-            <mcc:MD_ScopeCode
-               codeList="http://standards.iso.org/iso/19115/resources/Codelists/cat/codelists.xml#MD_ScopeCode"
-               codeListValue="dataset" />
-         </mdb:resourceScope>
-         <mdb:name>
-            <gco:CharacterString />
-         </mdb:name>
-      </mdb:MD_MetadataScope>
-   </mdb:metadataScope>
    <mdb:contact>
       <cit:CI_Responsibility>
          <cit:role>
@@ -85,30 +73,6 @@
          </cit:party>
       </cit:CI_Responsibility>
    </mdb:contact>
-   <mdb:dateInfo>
-      <cit:CI_Date>
-         <cit:date>
-            <gco:DateTime>2022-09-08T13:46:18.326Z</gco:DateTime>
-         </cit:date>
-         <cit:dateType>
-            <cit:CI_DateTypeCode
-               codeList="http://standards.iso.org/iso/19115/resources/Codelists/cat/codelists.xml#CI_DateTypeCode"
-               codeListValue="revision" />
-         </cit:dateType>
-      </cit:CI_Date>
-   </mdb:dateInfo>
-   <mdb:dateInfo>
-      <cit:CI_Date>
-         <cit:date>
-            <gco:DateTime>2022-05-20T09:39:18.19Z</gco:DateTime>
-         </cit:date>
-         <cit:dateType>
-            <cit:CI_DateTypeCode
-               codeList="http://standards.iso.org/iso/19115/resources/Codelists/cat/codelists.xml#CI_DateTypeCode"
-               codeListValue="creation" />
-         </cit:dateType>
-      </cit:CI_Date>
-   </mdb:dateInfo>
    <mdb:metadataStandard>
       <cit:CI_Citation>
          <cit:title>
@@ -129,9 +93,6 @@
    </mdb:referenceSystemInfo>
    <mdb:identificationInfo>
       <mri:MD_DataIdentification>
-         <mri:abstract>
-            <gco:CharacterString />
-         </mri:abstract>
          <mri:purpose>
             <gco:CharacterString />
          </mri:purpose>
