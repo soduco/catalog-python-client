@@ -5,11 +5,10 @@ import os
 import sys
 import uuid
 import warnings
-from lxml import etree as ET
 import re
-import yaml
 from typing import Any, ClassVar, Union
 from collections import defaultdict
+from lxml import etree as ET
 
 RECORD_DOCUMENT_TEMPLATE_PATH = (
     os.path.dirname(__file__) + "/xmltemplates/dataset_iso19115.xml"
