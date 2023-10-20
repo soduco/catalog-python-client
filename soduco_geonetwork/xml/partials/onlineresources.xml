@@ -9,14 +9,14 @@
         <cit:name>
             <gco:CharacterString>{VALUE_ONLINERESOURCE_NAME}</gco:CharacterString>
         </cit:name>
+        <cit:description>
+            <gco:CharacterString>{VALUE_ONLINERESOURCE_DESCRIPTION}</gco:CharacterString>
+         </cit:description>   
         <cit:function>
             <cit:CI_OnLineFunctionCode
                 codeList="http://standards.iso.org/iso/19115/resources/Codelists/cat/codelists.xml#CI_OnLineFunctionCode"
                 codeListValue="{VALUE_ONLINERESOURCE_TYPE}"
             />
-        </cit:function>
-        <cit:description>
-            <gco:CharacterString>{VALUE_ONLINERESOURCE_DESCRIPTION}</gco:CharacterString>
-         </cit:description>        
+        </cit:function>     
     </cit:CI_OnlineResource>
 </mrd:onLine>
