@@ -100,19 +100,6 @@
    </mdb:referenceSystemInfo>
    <mdb:identificationInfo>
       <mri:MD_DataIdentification>
-         <mri:purpose>
-            <gco:CharacterString />
-         </mri:purpose>
-         <mri:status>
-            <mcc:MD_ProgressCode
-               codeList="http://standards.iso.org/iso/19115/resources/Codelists/cat/codelists.xml#MD_ProgressCode"
-               codeListValue="" />
-         </mri:status>
-         <mri:spatialRepresentationType>
-            <mcc:MD_SpatialRepresentationTypeCode
-               codeList="http://standards.iso.org/iso/19115/resources/Codelists/cat/codelists.xml#MD_SpatialRepresentationTypeCode"
-               codeListValue="" />
-         </mri:spatialRepresentationType>
          <mri:spatialResolution>
             <mri:MD_Resolution>
                <mri:equivalentScale>
@@ -166,26 +153,8 @@
                </lan:characterEncoding>
             </lan:PT_Locale>
          </mri:defaultLocale>
-         <mri:supplementalInformation>
-            <gco:CharacterString />
-         </mri:supplementalInformation>
       </mri:MD_DataIdentification>
    </mdb:identificationInfo>
-   <mdb:contentInfo>
-   </mdb:contentInfo>
    <mdb:resourceLineage>
    </mdb:resourceLineage>
-   <mdb:acquisitionInformation>
-      <mac:MI_AcquisitionInformation>
-         <mac:scope>
-            <mcc:MD_Scope>
-               <mcc:level>
-                  <mcc:MD_ScopeCode
-                     codeList="http://standards.iso.org/iso/19115/resources/Codelists/cat/codelists.xml#MD_ScopeCode"
-                     codeListValue="" />
-               </mcc:level>
-            </mcc:MD_Scope>
-         </mac:scope>
-      </mac:MI_AcquisitionInformation>
-   </mdb:acquisitionInformation>
 </mdb:MD_Metadata>
