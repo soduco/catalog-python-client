@@ -1,0 +1,17 @@
+<cit:partyIdentifier>
+   <mcc:MD_Identifier>
+      <mcc:authority>
+         <cit:CI_Citation>
+            <cit:title>
+               <gco:CharacterString>{IDENTIFIER_AUTHORITY_NAME}</gco:CharacterString>
+            </cit:title>
+         </cit:CI_Citation>
+      </mcc:authority>
+      <mcc:code>
+         <gco:CharacterString>{IDENTIFIER_CODE}</gco:CharacterString>
+      </mcc:code>
+      <mcc:codeSpace>
+         <gco:CharacterString>{IDENTIFIER_CODESPACE}</gco:CharacterString>
+      </mcc:codeSpace>
+   </mcc:MD_Identifier>
+</cit:partyIdentifier>

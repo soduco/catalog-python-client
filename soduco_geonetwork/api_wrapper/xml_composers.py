@@ -516,6 +516,9 @@ class Individuals(XMLComposer):
 
     parent_xpath = "./mdb:identificationInfo/mri:MD_DataIdentification"
 
+    # Individuals may have a PartyIdentifier
+    is_leaf = False
+
     def __init__(self, record_tree: dict) -> None:
         self.parameters = {
             "name": record_tree["name"],
@@ -533,6 +536,9 @@ class Organisations(XMLComposer):
 
     parent_xpath = "./mdb:identificationInfo/mri:MD_DataIdentification"
 
+    # Organisations may have a PartyIdentifier
+    is_leaf = False
+
     def __init__(self, record_tree: dict) -> None:
         self.parameters = {
             "name": record_tree["name"],
@@ -542,6 +548,21 @@ class Organisations(XMLComposer):
         if "logo" in record_tree and record_tree["logo"] is not None:
             self.parameters.update({"logo": record_tree["logo"]})
 
+class PartyIdentifier(XMLComposer):
+    insertion_points = {
+        "authority_name": "//mcc:authority//cit:title/gco:CharacterString",
+        "code": "//mcc:code/gco:CharacterString",
+        "codespace": "//mcc:codeSpace/gco:CharacterString",
+    }
+
+    parent_xpath = ".//mri:pointOfContact/cit:CI_Responsibility/cit:party/*"
+
+    def __init__(self, record_tree: dict) -> None:
+        self.parameters = {
+            "authority_name": record_tree["authority_name"],
+            "code": record_tree["code"],
+            "codespace": record_tree["codespace"],
+        }
 
 class Overview(XMLComposer):
     insertion_points = {
@@ -570,6 +591,7 @@ class ResourceLineage(XMLComposer):
 ###
 # Helper functions
 ###
+# TODO: the warning is currently raised for elements inside a builder if it has a sub-builder. It shouldn't.
 def str_to_composer_cls(tree_node: str) -> type:
     """Return a composer class for a record tree node.
 
