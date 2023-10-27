@@ -156,5 +156,7 @@
       </mri:MD_DataIdentification>
    </mdb:identificationInfo>
    <mdb:resourceLineage>
+      <mrl:LI_Lineage>
+      </mrl:LI_Lineage>
    </mdb:resourceLineage>
 </mdb:MD_Metadata>
