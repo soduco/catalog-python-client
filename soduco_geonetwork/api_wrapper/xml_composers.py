@@ -592,6 +592,8 @@ class ResourceLineage(XMLComposer):
 class ProcessStep(XMLComposer):
     insertion_points = {
         "description": "//mrl:LE_ProcessStep/mrl:description/gco:CharacterString",
+        "title": "//mrl:LE_ProcessStep/mrl:reference//cit:title/gco:CharacterString",
+        "identifier": "//mrl:LE_ProcessStep/mrl:reference//cit:identifier//mcc:code/gco:CharacterString",
         "typeOfActivity": "//mrl:LE_Processing/mrl:identifier/mcc:MD_Identifier/mcc:code/gco:CharacterString",
         "softwareTitle": "//mrl:softwareReference//cit:title/gco:CharacterString",
         "softwareIdentifier": "//mrl:softwareReference//mcc:MD_Identifier/mcc:code/gco:CharacterString"
@@ -606,6 +608,8 @@ class ProcessStep(XMLComposer):
     def __init__(self, record_tree: str) -> None:
         self.parameters = {
             "description": record_tree["description"],
+            "title": record_tree["title"],
+            "identifier": record_tree["identifier"],
             "typeOfActivity": record_tree["typeOfActivity"],
             "softwareTitle": record_tree["softwareTitle"],
             "softwareIdentifier": record_tree["softwareIdentifier"],

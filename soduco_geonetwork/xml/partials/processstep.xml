@@ -12,54 +12,68 @@
                 <cit:party>
                     <cit:CI_Organisation>
                         <cit:name>
-                        <gco:CharacterString>The SoDUCo project</gco:CharacterString>
+                            <gco:CharacterString>The SoDUCo project</gco:CharacterString>
                         </cit:name>
                         <cit:contactInfo>
-                        <cit:CI_Contact>
-                            <cit:address>
-                                <cit:CI_Address>
-                                    <cit:electronicMailAddress>
-                                    <gco:CharacterString>contact@geohistoricaldata.org</gco:CharacterString>
-                                    </cit:electronicMailAddress>
-                                </cit:CI_Address>
-                            </cit:address>
-                        </cit:CI_Contact>
+                            <cit:CI_Contact>
+                                <cit:address>
+                                    <cit:CI_Address>
+                                        <cit:electronicMailAddress>
+                                            <gco:CharacterString>contact@geohistoricaldata.org</gco:CharacterString>
+                                        </cit:electronicMailAddress>
+                                    </cit:CI_Address>
+                                </cit:address>
+                            </cit:CI_Contact>
                         </cit:contactInfo>
                         <cit:logo>
-                        <mcc:MD_BrowseGraphic>
-                            <mcc:fileName>
-                                <gco:CharacterString>https://catalog.geohistoricaldata.org/geonetwork/images/harvesting/soduco.png</gco:CharacterString>
-                            </mcc:fileName>
-                        </mcc:MD_BrowseGraphic>
+                            <mcc:MD_BrowseGraphic>
+                                <mcc:fileName>
+                                    <gco:CharacterString>https://catalog.geohistoricaldata.org/geonetwork/images/harvesting/soduco.png</gco:CharacterString>
+                                </mcc:fileName>
+                            </mcc:MD_BrowseGraphic>
                         </cit:logo>
                     </cit:CI_Organisation>
                 </cit:party>
             </cit:CI_Responsibility>
         </mrl:processor>
+        <mrl:reference>
+            <cit:CI_Citation>
+                <cit:title>
+                    <gco:CharacterString>process_title</gco:CharacterString>
+                </cit:title>
+                <cit:identifier>
+                    <mcc:MD_Identifier>
+                        <mcc:code>
+                            <gco:CharacterString>process_identifier</gco:CharacterString>
+                        </mcc:code>
+                    </mcc:MD_Identifier>
+                </cit:identifier>
+            </cit:CI_Citation>
+        </mrl:reference>
         <mrl:processingInformation>
-        <mrl:LE_Processing>
-            <mrl:identifier>
-                <mcc:MD_Identifier>
-                    <mcc:code>
-                        <gco:CharacterString>{PROCESSSTEP_PROCESSUS_IDENTIFIER}</gco:CharacterString>
-                    </mcc:code>
-                </mcc:MD_Identifier>
-            </mrl:identifier>
-            <mrl:softwareReference>
-                <cit:CI_Citation>
-                    <cit:title>
-                        <gco:CharacterString>{PROCESSSTEP_SOFTWARE_TITLE}</gco:CharacterString>
-                    </cit:title>
-                    <cit:identifier>
-                        <mcc:MD_Identifier>
-                            <mcc:code>
-                                <gco:CharacterString>{PROCESSSTEP_SOFTWARE_IDENTIFIER}</gco:CharacterString>
-                            </mcc:code>
-                        </mcc:MD_Identifier>
-                    </cit:identifier>
-                </cit:CI_Citation>
-            </mrl:softwareReference>
-        </mrl:LE_Processing>
+            <mrl:LE_Processing>
+                <mrl:identifier>
+                    <mcc:MD_Identifier>
+                        <mcc:code>
+                            <gco:CharacterString>{PROCESSSTEP_PROCESSUS_IDENTIFIER}</gco:CharacterString>
+                        </mcc:code>
+                    </mcc:MD_Identifier>
+                </mrl:identifier>
+                <mrl:softwareReference>
+                    <cit:CI_Citation>
+                        <cit:title>
+                            <gco:CharacterString>{PROCESSSTEP_SOFTWARE_TITLE}</gco:CharacterString>
+                        </cit:title>
+                        <cit:identifier>
+                            <mcc:MD_Identifier>
+                                <mcc:code>
+                                    <gco:CharacterString>{PROCESSSTEP_SOFTWARE_IDENTIFIER}</gco:CharacterString>
+                                </mcc:code>
+                            </mcc:MD_Identifier>
+                        </cit:identifier>
+                    </cit:CI_Citation>
+                </mrl:softwareReference>
+            </mrl:LE_Processing>
         </mrl:processingInformation>
         <mrl:output>
         </mrl:output>
