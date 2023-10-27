@@ -1,0 +1,16 @@
+<mrl:LE_Source>
+    <mrl:sourceCitation>
+        <cit:CI_Citation>
+            <cit:title>
+            <gco:CharacterString>{PROCESSSTEP_OUTPUT_TITLE}</gco:CharacterString>
+            </cit:title>
+            <cit:identifier>
+            <mcc:MD_Identifier>
+                <mcc:code>
+                    <gco:CharacterString>{PROCESSSTEP_OUTPUT_IDENTIFIER}</gco:CharacterString>
+                </mcc:code>
+            </mcc:MD_Identifier>
+            </cit:identifier>
+        </cit:CI_Citation>
+    </mrl:sourceCitation>
+</mrl:LE_Source>
