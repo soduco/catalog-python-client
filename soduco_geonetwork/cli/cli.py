@@ -123,7 +123,8 @@ def update(input_csv_file, edition_location, xml_patch):
 
 @cli.command()
 @click.argument("csv_postponed_values", type=click.Path(exists=True))
-def update_postponed_values(csv_postponed_values):
+@click.argument("temp_csv_postponed_values", type=click.Path(exists=True))
+def update_postponed_values(csv_postponed_values, temp_csv_postponed_values):
     """Edit the postponed links between uploaded records
 
 
@@ -134,10 +135,14 @@ def update_postponed_values(csv_postponed_values):
     )
 
     postponed_list = helpers.read_postponed_values(csv_postponed_values)
+    if temp_csv_postponed_values:
+        prior_postponed_list = helpers.read_postponed_values(temp_csv_postponed_values)
 
-    for item in postponed_list:
-        dataset.edit_postponed_values(item, session)
-
+    for index, item in enumerate(postponed_list):
+        if temp_csv_postponed_values:
+            prior_item = prior_postponed_list[index]
+            response = dataset.edit_postponed_values(item, prior_item, session)
+            click.echo(response)
 
 @cli.command()
 @click.argument("input_csv_file", type=click.Path(exists=True))
@@ -155,9 +160,11 @@ def delete(input_csv_file):
 
     uuid_list = helpers.uuid_list_from_csv(input_csv_file)
 
-    response = dataset.delete(uuid_list, session).json()
+    chunk_size = 100
 
-    click.echo(response)
+    for i in range(0, len(uuid_list), chunk_size):
+        response = dataset.delete(uuid_list[i:i+chunk_size], session).json()
+        click.echo(response)
 
 
 if __name__ == "__main__":
