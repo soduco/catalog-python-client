@@ -635,6 +635,7 @@ class ProcessStepSource(XMLComposer):
 
 class ProcessStepOutput(XMLComposer):
     insertion_points = {
+        "description": "//mrl:LE_Source/mrl:description/gco:CharacterString",        
         "title": "//mrl:sourceCitation//cit:title/gco:CharacterString",
         "identifier": "mrl:sourceCitation//mcc:MD_Identifier/mcc:code/gco:CharacterString",
     }
@@ -643,6 +644,7 @@ class ProcessStepOutput(XMLComposer):
 
     def __init__(self, record_tree: str) -> None:
         self.parameters = {
+            "description": record_tree["description"],
             "title": record_tree["title"],
             "identifier": record_tree["identifier"],
         }
