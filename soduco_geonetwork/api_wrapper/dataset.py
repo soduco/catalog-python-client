@@ -127,7 +127,7 @@ def edit_postponed_values(
     """Edit the postponed links between recently uploaded records"""
 
     geonetwork_uuid = postponed_values["uuid"]
-    print(f"edit_postponed_values for {geonetwork_uuid}")
+    #print(f"edit_postponed_values for {geonetwork_uuid}")
 
     if "associatedResource" in postponed_values.keys():
         for index, associated_ressource in enumerate(postponed_values["associatedResource"]):
@@ -142,7 +142,7 @@ def edit_postponed_values(
             xml_element = builder.compose().find("mri:MD_AssociatedResource", namespaces=xml_composers.NAMESPACES)
             xml_element = ET.tostring(xml_element, encoding="unicode")
             prior_value = prior_postponed_values["associatedResource"][index]["value"]
-            print(f"associatedResource for {geonetwork_uuid}: {xml_element} with {builder.parent_xpath}")
+            #print(f"associatedResource for {geonetwork_uuid}: {xml_element} with {builder.parent_xpath}")
             response = update(
                 [geonetwork_uuid], builder.parent_xpath+f"/mri:associatedResource[mri:MD_AssociatedResource/mri:metadataReference/@uuidref='{prior_value}']", xml_element, session, "REPLACE"
             ).json()
@@ -155,9 +155,9 @@ def edit_postponed_values(
                 ET.register_namespace(namespace, uri)
             xml_element = ET.tostring(builder.compose(), encoding="unicode")
             prior_value = prior_postponed_values["resourceLineage"][index]["value"]
-            print(f"resourceLineage for {geonetwork_uuid}: {xml_element} with {builder.parent_xpath}")
+            print(f"resourceLineage for {geonetwork_uuid}: {xml_element} with {builder.parent_xpath}[mrl:source/@uuidref='{prior_value}'] with {resource}")
             response = update(
-                [geonetwork_uuid], builder.parent_xpath+f"[mrl:source/@uuidref='{prior_value}']", xml_element, session, "REPLACE"
+                [geonetwork_uuid], f"{builder.parent_xpath}/mrl:source[@uuidref='{prior_value}']/@uuidref", resource, session, "REPLACE"
             ).json()
             print(response)
 
