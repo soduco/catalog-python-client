@@ -70,6 +70,7 @@ def update(
     edition_location: str,
     xml_patch: str,
     session: requests.Session = requests.Session(),
+    mode:str = None
 ):
     """
     Call the batch_edit API endpoint in geonetwork.
@@ -89,8 +90,20 @@ def update(
     }]"
     """
 
-    xpath = helpers.drop_leading_dot_in_xpath(edition_location)
-    payload = json.dumps([{"xpath": xpath, "value": xml_patch}])
+    # Apparently geonetwork does require le leading dot
+    xpath = edition_location#helpers.drop_leading_dot_in_xpath(edition_location)
+    # Add the geonetwork tags to the value "patch"
+    patch = xml_patch
+    if mode == "CREATE":
+        patch = f"<gn_create>{xml_patch}</gn_create>"
+    elif mode == "ADD":
+        patch = f"<gn_add>{xml_patch}</gn_add>"
+    elif mode == "DELETE":
+        patch = f"<gn_delete>{xml_patch}</gn_delete>"
+    elif mode == "REPLACE":
+        patch = f"<gn_replace>{xml_patch}</gn_replace>"
+    payload = json.dumps([{"xpath": xpath, "value": patch}])
+    #print(f"update for {','.join(uuid_list)}: {payload}")
 
     token = session.cookies.get_dict().get("XSRF-TOKEN")
     headers = {
@@ -109,14 +122,15 @@ def update(
 
 
 def edit_postponed_values(
-    postponed_values: dict, session: requests.Session = requests.Session()
+    postponed_values: dict, prior_postponed_values: dict, session: requests.Session = requests.Session()
 ):
     """Edit the postponed links between recently uploaded records"""
 
     geonetwork_uuid = postponed_values["uuid"]
+    print(f"edit_postponed_values for {geonetwork_uuid}")
 
     if "associatedResource" in postponed_values.keys():
-        for associated_ressource in postponed_values["associatedResource"]:
+        for index, associated_ressource in enumerate(postponed_values["associatedResource"]):
             builder = xml_composers.AssociatedResource(
                 {
                     "value": associated_ressource["value"],
@@ -125,20 +139,27 @@ def edit_postponed_values(
             )
             for namespace, uri in xml_composers.NAMESPACES.items():
                 ET.register_namespace(namespace, uri)
-            xml_element = ET.tostring(builder.compose(), encoding="unicode")
-            update(
-                [geonetwork_uuid], builder.parent_xpath, xml_element, session
-            )
+            xml_element = builder.compose().find("mri:MD_AssociatedResource", namespaces=xml_composers.NAMESPACES)
+            xml_element = ET.tostring(xml_element, encoding="unicode")
+            prior_value = prior_postponed_values["associatedResource"][index]["value"]
+            print(f"associatedResource for {geonetwork_uuid}: {xml_element} with {builder.parent_xpath}")
+            response = update(
+                [geonetwork_uuid], builder.parent_xpath+f"/mri:associatedResource[mri:MD_AssociatedResource/mri:metadataReference/@uuidref='{prior_value}']", xml_element, session, "REPLACE"
+            ).json()
+            print(response)
 
     if "resourceLineage" in postponed_values.keys():
-        for resource in postponed_values["resourceLineage"]:
+        for index, resource in enumerate(postponed_values["resourceLineage"]):
             builder = xml_composers.ResourceLineage(resource)
             for namespace, uri in xml_composers.NAMESPACES.items():
                 ET.register_namespace(namespace, uri)
             xml_element = ET.tostring(builder.compose(), encoding="unicode")
-            update(
-                [geonetwork_uuid], builder.parent_xpath, xml_element, session
-            )
+            prior_value = prior_postponed_values["resourceLineage"][index]["value"]
+            print(f"resourceLineage for {geonetwork_uuid}: {xml_element} with {builder.parent_xpath}")
+            response = update(
+                [geonetwork_uuid], builder.parent_xpath+f"[mrl:source/@uuidref='{prior_value}']", xml_element, session, "REPLACE"
+            ).json()
+            print(response)
 
 
 # endregion
