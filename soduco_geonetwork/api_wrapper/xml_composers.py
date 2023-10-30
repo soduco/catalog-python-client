@@ -514,7 +514,7 @@ class Individuals(XMLComposer):
         "role": ("//cit:role/cit:CI_RoleCode", "codeListValue"),
     }
 
-    parent_xpath = "./mdb:identificationInfo/mri:MD_DataIdentification"
+    parent_xpath = "./mdb:identificationInfo/mri:MD_DataIdentification/mri:associatedResource"
 
     # Individuals may have a PartyIdentifier
     is_leaf = False
@@ -580,7 +580,7 @@ class ResourceLineage(XMLComposer):
         "value": ("//mrl:source", "uuidref"),
     }
 
-    parent_xpath = "./mdb:resourceLineage/mrl:LI_Lineage"
+    parent_xpath = ".//mrl:LI_Lineage"#./mdb:resourceLineage/mrl:LI_Lineage
 
     def __init__(self, record_tree: str) -> None:
         self.parameters = {"value": record_tree}
