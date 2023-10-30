@@ -102,8 +102,42 @@ def main():
                 "transparent": True
             }
         })
+    def create_entry(wms, date, url):
+        wms_cache = f"{wms}_cache"
+        wms_source = f"{wms}_tms"
+        layers.append({
+            "name": wms,
+            "title": f"Atlas municipal des vingt arrondissements de la ville de Paris. {date}]",
+            "sources": [wms_cache]
+        })
+        caches.update({
+            wms_cache: {
+                "grids": ["webmercator"],
+                "sources": [wms_source]
+            }
+        })
+        sources.update({
+            wms_source: {
+                "type": "tile",
+                "grid": "webmercator",
+                "url": f"https://allmaps.xyz/%(z)s/%(x)s/%(y)s.png?url={url}",
+                "coverage":{
+                    "bbox": parisExtent.copy(),
+                    "srs": "EPSG:4326"
+                },
+                "transparent": True
+            }
+        })        
     create_entries("bnf",1)
     create_entries("stanford",1)
+    # Adding the Atlas Municipal atlases
+    create_entry("atlas_municipal_1878","1878","https://github.com/soduco/allmaps_annotations/raw/main/output/bhdv_atlas_municipal_1878/annotation_bhdv_atlas_municipal_1878.json")
+    create_entry("atlas_municipal_1886","1886","https://github.com/soduco/allmaps_annotations/raw/main/output/bhdv_atlas_municipal_1886/annotation_bhdv_atlas_municipal_1886.json")
+    create_entry("atlas_municipal_1887","1887","https://github.com/soduco/allmaps_annotations/raw/main/output/bhdv_atlas_municipal_1887/annotation_bhdv_atlas_municipal_1887.json")
+    create_entry("atlas_municipal_1888","1888","https://github.com/soduco/allmaps_annotations/raw/main/output/bhdv_atlas_municipal_1888/annotation_bhdv_atlas_municipal_1888.json")
+    create_entry("atlas_municipal_1900","1900","https://github.com/soduco/allmaps_annotations/raw/main/output/bhdv_atlas_municipal_1900/annotation_bhdv_atlas_municipal_1900.json")
+    create_entry("atlas_municipal_1925","1925","https://github.com/soduco/allmaps_annotations/raw/main/output/bhdv_atlas_municipal_1925/annotation_bhdv_atlas_municipal_1925.json")
+    create_entry("atlas_municipal_1937","1929-1936","https://github.com/soduco/allmaps_annotations/raw/main/output/bhdv_atlas_municipal_1937/annotation_bhdv_atlas_municipal_1937.json")
     config = {
         "services":{
             "tms":{
