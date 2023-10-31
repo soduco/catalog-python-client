@@ -623,7 +623,7 @@ class ProcessStepSource(XMLComposer):
         "identifier": "//mrl:sourceCitation//mcc:MD_Identifier/mcc:code/gco:CharacterString",
     }
 
-    parent_xpath = "./mdb:resourceLineage/mrl:LI_Lineage/mrl:processStep/mrl:LE_ProcessStep"
+    parent_xpath = "./mdb:resourceLineage/mrl:LI_Lineage/mrl:processStep/mrl:LE_ProcessStep/mrl:source"
 
     def __init__(self, record_tree: str) -> None:
         self.parameters = {
