@@ -302,6 +302,19 @@ class XMLComposer:
         return self.xml_element
 
 
+class Identifier(XMLComposer):
+    """Generate a uuid5 from the yaml identifier
+    """
+    insertion_points = {
+        "uuid" : "//mcc:codeSpace/gco:CharacterString"
+    }
+
+    parent_xpath = "./mdb:metadataIdentifier"
+
+    def __init__(self, record_tree) -> None:
+        self.parameters = {
+            "uuid": str(uuid.uuid5(uuid.NAMESPACE_X500, record_tree))
+        }    
 class Identification(XMLComposer):
     insertion_points = {
         "title": "//cit:title/gco:CharacterString"

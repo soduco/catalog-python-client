@@ -28,11 +28,6 @@
    xmlns:mmi="http://standards.iso.org/iso/19115/-3/mmi/1.0"
    xmlns:mdq="http://standards.iso.org/iso/19157/-2/mdq/1.0">
    <mdb:metadataIdentifier>
-      <mcc:MD_Identifier>
-         <mcc:codeSpace>
-            <gco:CharacterString>urn:uuid</gco:CharacterString>
-         </mcc:codeSpace>
-      </mcc:MD_Identifier>
    </mdb:metadataIdentifier>
    <mdb:defaultLocale>
       <lan:PT_Locale id="EN">
