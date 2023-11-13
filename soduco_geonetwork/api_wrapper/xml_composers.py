@@ -314,7 +314,9 @@ class Identifier(XMLComposer):
     def __init__(self, record_tree) -> None:
         self.parameters = {
             "uuid": str(uuid.uuid5(uuid.NAMESPACE_X500, record_tree))
-        }    
+        }
+
+
 class Identification(XMLComposer):
     insertion_points = {
         "title": "//cit:title/gco:CharacterString"
