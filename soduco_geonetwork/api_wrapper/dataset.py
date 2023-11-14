@@ -54,7 +54,7 @@ def upload(xml: ET.ElementTree, session: requests.Session = requests.Session()):
         "Content-Type": "application/xml",
     }
     payload = xml_string
-    response = session.put(config.api_route_records, headers=headers, data=payload)
+    response = session.put(config.api_route_records, params={"uuidProcessing" : "NOTHING"}, headers=headers, data=payload)
     response.raise_for_status()
 
     return response
