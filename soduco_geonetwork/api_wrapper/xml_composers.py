@@ -306,7 +306,7 @@ class Identifier(XMLComposer):
     """Generate a uuid5 from the yaml identifier
     """
     insertion_points = {
-        "uuid" : "//mcc:codeSpace/gco:CharacterString"
+        "uuid" : "//mcc:code/gco:CharacterString"
     }
 
     parent_xpath = "./mdb:metadataIdentifier"
