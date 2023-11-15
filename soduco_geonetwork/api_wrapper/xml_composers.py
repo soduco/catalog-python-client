@@ -664,7 +664,8 @@ class ProcessStepOutput(XMLComposer):
     insertion_points = {
         "description": "//mrl:LE_Source/mrl:description/gco:CharacterString",        
         "title": "//mrl:sourceCitation//cit:title/gco:CharacterString",
-        "identifier": "mrl:sourceCitation//mcc:MD_Identifier/mcc:code/gco:CharacterString",
+        "identifier": "//mrl:sourceCitation//mcc:MD_Identifier/mcc:code/gco:CharacterString",
+        "url": "//cit:onlineResource//cit:linkage/gco:CharacterString"
     }
 
     parent_xpath = "./mdb:resourceLineage/mrl:LI_Lineage/mrl:processStep/mrl:LE_ProcessStep/mrl:output"
@@ -674,6 +675,7 @@ class ProcessStepOutput(XMLComposer):
             "description": record_tree["description"],
             "title": record_tree["title"],
             "identifier": record_tree["identifier"],
+            "url": record_tree["url"]
         }
 
 

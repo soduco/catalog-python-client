@@ -14,6 +14,13 @@
                     </mcc:code>
                 </mcc:MD_Identifier>
             </cit:identifier>
+            <cit:onlineResource>
+                <cit:CI_OnlineResource>
+                    <cit:linkage>
+                        <gco:CharacterString>{PROCESSSTEP_OUTPUT_URL}</gco:CharacterString>
+                    </cit:linkage>
+                </cit:CI_OnlineResource>
+            </cit:onlineResource>
         </cit:CI_Citation>
     </mrl:sourceCitation>
 </mrl:LE_Source>
