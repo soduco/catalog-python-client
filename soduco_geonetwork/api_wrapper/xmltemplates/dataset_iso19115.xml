@@ -96,15 +96,6 @@
    <mdb:identificationInfo>
       <mri:MD_DataIdentification>
          <mri:spatialResolution>
-            <mri:MD_Resolution>
-               <mri:equivalentScale>
-                  <mri:MD_RepresentativeFraction>
-                     <mri:denominator>
-                        <gco:Integer>1728</gco:Integer>
-                     </mri:denominator>
-                  </mri:MD_RepresentativeFraction>
-               </mri:equivalentScale>
-            </mri:MD_Resolution>
          </mri:spatialResolution>
          <mri:topicCategory>
             <mri:MD_TopicCategoryCode>geoscientificInformation</mri:MD_TopicCategoryCode>

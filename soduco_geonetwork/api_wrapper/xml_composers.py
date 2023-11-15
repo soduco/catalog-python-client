@@ -341,6 +341,18 @@ class Abstract(XMLComposer):
         }
 
 
+class SpatialResolution(XMLComposer):
+    insertion_points = {
+        "spatial_resolution": "//mri:denominator/gco:Integer"
+    }
+    parent_xpath = "./mdb:identificationInfo/mri:MD_DataIdentification/mri:spatialResolution"
+
+    def __init__(self, record_tree: str) -> None:
+        self.parameters = {
+            "spatial_resolution": record_tree
+        }
+
+
 class Scope(XMLComposer):
     insertion_points = {
         "scope": (

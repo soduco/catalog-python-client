@@ -1,0 +1,9 @@
+<mri:MD_Resolution>
+    <mri:equivalentScale>
+       <mri:MD_RepresentativeFraction>
+          <mri:denominator>
+             <gco:Integer>{SPATIAL_RESOLUTION}</gco:Integer>
+          </mri:denominator>
+       </mri:MD_RepresentativeFraction>
+    </mri:equivalentScale>
+</mri:MD_Resolution>
