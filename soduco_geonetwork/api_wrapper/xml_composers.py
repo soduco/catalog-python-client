@@ -117,7 +117,17 @@ class RecordDocumentBuilder:
                 composer.parent_xpath, namespaces=NAMESPACES
             )
             for point in insertion_points:
-                point.append(new_element)
+                if composer.before:
+                    subElement = point.find(composer.before, namespaces=NAMESPACES)
+                    index = point.index(subElement)
+                    point.insert(index, new_element)
+                elif composer.after:
+                    subElement = point.find(composer.after, namespaces=NAMESPACES)
+                    index = point.index(subElement)
+                    point.insert(index + 1, new_element)
+                else:
+                    point.append(new_element)
+                
         self._constructed = True
         return self.get()
 
@@ -229,6 +239,8 @@ class XMLComposer:
     template: ClassVar[ET.ElementTree] = ""
     insertion_points: ClassVar[dict[str, Union[str, tuple[str, str]]]] = {}
     parent_xpath: ClassVar[str] = "./"
+    before:ClassVar[str] = None
+    after:ClassVar[str] = None
 
     """
     The default behavior of a RecordDocumentBuilder is to traverse a record tree depth-first
@@ -620,7 +632,7 @@ class ProcessStep(XMLComposer):
     insertion_points = {
         "description": "//mrl:LE_ProcessStep/mrl:description/gco:CharacterString",
         "title": "//mrl:LE_ProcessStep/mrl:reference//cit:title/gco:CharacterString",
-        "identifier": "//mrl:LE_ProcessStep/mrl:reference//cit:identifier//mcc:code/gco:CharacterString",
+        "processingIdentifier": "//mrl:LE_ProcessStep/mrl:reference//cit:identifier//mcc:code/gco:CharacterString",
         "typeOfActivity": "//mrl:LE_Processing/mrl:identifier/mcc:MD_Identifier/mcc:code/gco:CharacterString",
         "softwareTitle": "//mrl:softwareReference//cit:title/gco:CharacterString",
         "softwareIdentifier": "//mrl:softwareReference//mcc:MD_Identifier/mcc:code/gco:CharacterString"
@@ -636,7 +648,7 @@ class ProcessStep(XMLComposer):
         self.parameters = {
             "description": record_tree["description"],
             "title": record_tree["title"],
-            "identifier": record_tree["identifier"],
+            "processingIdentifier": record_tree["processingIdentifier"],
             "typeOfActivity": record_tree["typeOfActivity"],
             "softwareTitle": record_tree["softwareTitle"],
             "softwareIdentifier": record_tree["softwareIdentifier"],
@@ -651,7 +663,8 @@ class ProcessStepSource(XMLComposer):
         "url": "//cit:onlineResource//cit:linkage/gco:CharacterString"
     }
 
-    parent_xpath = "./mdb:resourceLineage/mrl:LI_Lineage/mrl:processStep/mrl:LE_ProcessStep/mrl:source"
+    parent_xpath = "./mdb:resourceLineage/mrl:LI_Lineage/mrl:processStep/mrl:LE_ProcessStep"
+    before = "./mrl:processingInformation"
 
     def __init__(self, record_tree: str) -> None:
         self.parameters = {
@@ -670,7 +683,8 @@ class ProcessStepOutput(XMLComposer):
         "url": "//cit:onlineResource//cit:linkage/gco:CharacterString"
     }
 
-    parent_xpath = "./mdb:resourceLineage/mrl:LI_Lineage/mrl:processStep/mrl:LE_ProcessStep/mrl:output"
+    parent_xpath = "./mdb:resourceLineage/mrl:LI_Lineage/mrl:processStep/mrl:LE_ProcessStep"
+    after = "./mrl:processingInformation"
 
     def __init__(self, record_tree: str) -> None:
         self.parameters = {

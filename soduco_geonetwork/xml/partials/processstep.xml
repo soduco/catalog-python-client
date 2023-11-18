@@ -50,8 +50,6 @@
                 </cit:identifier>
             </cit:CI_Citation>
         </mrl:reference>
-        <mrl:source>
-        </mrl:source>
         <mrl:processingInformation>
             <mrl:LE_Processing>
                 <mrl:identifier>
@@ -77,7 +75,5 @@
                 </mrl:softwareReference>
             </mrl:LE_Processing>
         </mrl:processingInformation>
-        <mrl:output>
-        </mrl:output>
     </mrl:LE_ProcessStep>
 </mrl:processStep>
