@@ -9,9 +9,9 @@ import yaml
 def main():
     logging.basicConfig(level="INFO")
     logging.info("START")
-    with open('../geonetwork-resources/verniquet/extents.yaml', 'r') as extent_file:
+    with open('../catalog-archived/geonetwork-resources/verniquet/extents.yaml', 'r') as extent_file:
         data = yaml.safe_load(extent_file)
-    dataverse = json.loads(open('../geonetwork-resources/verniquet/dataverse.harvard.edu.json').read())
+    dataverse = json.loads(open('../catalog-archived/geonetwork-resources/verniquet/dataverse.harvard.edu.json').read())
     dataverse_data_file_url = "https://dataverse.harvard.edu/api/access/datafile/"
     dataverse_links = {}
     def create_dictionary():
@@ -41,7 +41,7 @@ def main():
     #parisExtent = [2.2789487344052968,48.8244731921314568,2.4080435114903960,48.8904078536729116]
     parisExtent = [2.2182,48.8074,2.4757,48.9103]
     def create_entries(version, version_start):
-        list = pandas.read_csv(f"../geonetwork-resources/verniquet_{version}/yaml_list.csv")
+        list = pandas.read_csv(f"../catalog-archived/geonetwork-resources/verniquet_{version}/yaml_list.csv")
         for index, row in list.iterrows():
             uuid = row["geonetwork_uuid"]
             if (index > version_start):
@@ -161,12 +161,15 @@ def main():
     create_entries("bnf",1)
     create_entries("stanford",1)
     # Adding the Atlas Municipal atlases
-    with open("../geonetwork-resources/atlas_municipal/atlas_municipal_entents.json", "r") as extent_file:
+    with open("../catalog-archived/geonetwork-resources/atlas_municipal/atlas_municipal_entents.json", "r") as extent_file:
         atlas_municipal_extents = json.load(extent_file)
-    with open("../geonetwork-resources/jacoubet/jacoubet_extents.json", "r") as extent_file:
+    with open("../catalog-archived/geonetwork-resources/jacoubet/jacoubet_extents.json", "r") as extent_file:
         jacoubet_extents = json.load(extent_file)
+        create_entries_nofile("atlas_municipal_1868","Atlas municipal des vingt arrondissements de la ville de Paris [Exemplaire Ville de Paris/BHdV]","1868",
+                          "https://github.com/soduco/allmaps_annotations/raw/main/output/bhdv_atlas_municipal_1868/annotation_bhdv_atlas_municipal_1868.json&transformation.type=thinPlateSpline",list(range(1,17)),
+                          "https://github.com/soduco/allmaps_annotations/raw/main/output/bhdv_atlas_municipal_1868/BhdV_PL_ATL20Ardt_1868_00",4,atlas_municipal_extents)
     create_entries_nofile("atlas_municipal_1878","Atlas municipal des vingt arrondissements de la ville de Paris [Exemplaire Ville de Paris/BHdV]","1878",
-                          "https://github.com/soduco/allmaps_annotations/raw/main/output/bhdv_atlas_municipal_1878/annotation_bhdv_atlas_municipal_1878.&transformation.type=thinPlateSpline",list(range(1,17)),
+                          "https://github.com/soduco/allmaps_annotations/raw/main/output/bhdv_atlas_municipal_1878/annotation_bhdv_atlas_municipal_1878.json&transformation.type=thinPlateSpline",list(range(1,17)),
                           "https://github.com/soduco/allmaps_annotations/raw/main/output/bhdv_atlas_municipal_1878/BhdV_PL_ATL20Ardt_1878_00",1,atlas_municipal_extents)
     create_entries_nofile("atlas_municipal_1886","Atlas municipal des vingt arrondissements de la ville de Paris [Exemplaire Ville de Paris/BHdV]","1886",
                           "https://github.com/soduco/allmaps_annotations/raw/main/output/bhdv_atlas_municipal_1886/annotation_bhdv_atlas_municipal_1886.json&transformation.type=thinPlateSpline",list(range(1,17)),
