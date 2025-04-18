@@ -160,42 +160,46 @@ def main():
                 })
     create_entries("bnf",1)
     create_entries("stanford",1)
+    annotation_repo = "https://raw.githubusercontent.com/soduco/allmaps_annotations/main/output"
     # Adding the Atlas Municipal atlases
     with open("../catalog-archived/geonetwork-resources/atlas_municipal/atlas_municipal_entents.json", "r") as extent_file:
         atlas_municipal_extents = json.load(extent_file)
     with open("../catalog-archived/geonetwork-resources/jacoubet/jacoubet_extents.json", "r") as extent_file:
-        jacoubet_extents = json.load(extent_file)
-        create_entries_nofile("atlas_municipal_1868","Atlas municipal des vingt arrondissements de la ville de Paris [Exemplaire Ville de Paris/BHdV]","1868",
-                          "https://github.com/soduco/allmaps_annotations/raw/main/output/bhdv_atlas_municipal_1868/annotation_bhdv_atlas_municipal_1868.json&transformation.type=thinPlateSpline",list(range(1,17)),
-                          "https://github.com/soduco/allmaps_annotations/raw/main/output/bhdv_atlas_municipal_1868/BhdV_PL_ATL20Ardt_1868_00",4,atlas_municipal_extents)
+        jacoubet_extents = json.load(extent_file)    
+    create_entries_nofile("atlas_municipal_1868","Atlas municipal des vingt arrondissements de la ville de Paris [Exemplaire Ville de Paris/BHdV]","1868",
+                          f"{annotation_repo}/bhdv_atlas_municipal_1868/annotation_bhdv_atlas_municipal_1868.json&transformation.type=thinPlateSpline",list(range(1,17)),
+                          f"{annotation_repo}/bhdv_atlas_municipal_1868/BHdV_PL_ATL20Ardt_1868a_00",4,atlas_municipal_extents)
     create_entries_nofile("atlas_municipal_1878","Atlas municipal des vingt arrondissements de la ville de Paris [Exemplaire Ville de Paris/BHdV]","1878",
-                          "https://github.com/soduco/allmaps_annotations/raw/main/output/bhdv_atlas_municipal_1878/annotation_bhdv_atlas_municipal_1878.json&transformation.type=thinPlateSpline",list(range(1,17)),
-                          "https://github.com/soduco/allmaps_annotations/raw/main/output/bhdv_atlas_municipal_1878/BhdV_PL_ATL20Ardt_1878_00",1,atlas_municipal_extents)
+                          f"{annotation_repo}/bhdv_atlas_municipal_1878/annotation_bhdv_atlas_municipal_1878.json&transformation.type=thinPlateSpline",list(range(1,17)),
+                          f"{annotation_repo}/bhdv_atlas_municipal_1878/BhdV_PL_ATL20Ardt_1878_00",1,atlas_municipal_extents)
     create_entries_nofile("atlas_municipal_1886","Atlas municipal des vingt arrondissements de la ville de Paris [Exemplaire Ville de Paris/BHdV]","1886",
-                          "https://github.com/soduco/allmaps_annotations/raw/main/output/bhdv_atlas_municipal_1886/annotation_bhdv_atlas_municipal_1886.json&transformation.type=thinPlateSpline",list(range(1,17)),
-                          "https://github.com/soduco/allmaps_annotations/raw/main/output/bhdv_atlas_municipal_1886/BhdV_PL_ATL20Ardt_1886_00",1,atlas_municipal_extents)
+                          f"{annotation_repo}/bhdv_atlas_municipal_1886/annotation_bhdv_atlas_municipal_1886.json&transformation.type=thinPlateSpline",list(range(1,17)),
+                          f"{annotation_repo}/bhdv_atlas_municipal_1886/BhdV_PL_ATL20Ardt_1886_00",1,atlas_municipal_extents)
     create_entries_nofile("atlas_municipal_1887","Atlas municipal des vingt arrondissements de la ville de Paris [Exemplaire Ville de Paris/BHdV]","1887",
-                          "https://github.com/soduco/allmaps_annotations/raw/main/output/bhdv_atlas_municipal_1887/annotation_bhdv_atlas_municipal_1887.json&transformation.type=thinPlateSpline",list(range(1,17)),
-                          "https://github.com/soduco/allmaps_annotations/raw/main/output/bhdv_atlas_municipal_1887/BhdV_PL_ATL20Ardt_1887_00",1,atlas_municipal_extents)
+                          f"{annotation_repo}/bhdv_atlas_municipal_1887/annotation_bhdv_atlas_municipal_1887.json&transformation.type=thinPlateSpline",list(range(1,17)),
+                          f"{annotation_repo}/bhdv_atlas_municipal_1887/BhdV_PL_ATL20Ardt_1887_00",1,atlas_municipal_extents)
     create_entries_nofile("atlas_municipal_1888","Atlas municipal des vingt arrondissements de la ville de Paris [Exemplaire Ville de Paris/BHdV]","1888",
-                          "https://github.com/soduco/allmaps_annotations/raw/main/output/bhdv_atlas_municipal_1888/annotation_bhdv_atlas_municipal_1888.json&transformation.type=thinPlateSpline",list(range(1,17)),
-                          "https://github.com/soduco/allmaps_annotations/raw/main/output/bhdv_atlas_municipal_1888/BHdV_PL_ATL20Ardt_1888_00",1,atlas_municipal_extents)
+                          f"{annotation_repo}/bhdv_atlas_municipal_1888/annotation_bhdv_atlas_municipal_1888.json&transformation.type=thinPlateSpline",list(range(1,17)),
+                          f"{annotation_repo}/bhdv_atlas_municipal_1888/BHdV_PL_ATL20Ardt_1888_00",1,atlas_municipal_extents)
     create_entries_nofile("atlas_municipal_1900","Atlas municipal des vingt arrondissements de la ville de Paris [Exemplaire Ville de Paris/BHdV]","1900",
-                          "https://github.com/soduco/allmaps_annotations/raw/main/output/bhdv_atlas_municipal_1900/annotation_bhdv_atlas_municipal_1900.json&transformation.type=thinPlateSpline",list(range(1,17)),
-                          "https://github.com/soduco/allmaps_annotations/raw/main/output/bhdv_atlas_municipal_1900/BHdV_PL_ATL20Ardt_1900_00",1,atlas_municipal_extents)
+                          f"{annotation_repo}/bhdv_atlas_municipal_1900/annotation_bhdv_atlas_municipal_1900.json&transformation.type=thinPlateSpline",list(range(1,17)),
+                          f"{annotation_repo}/bhdv_atlas_municipal_1900/BHdV_PL_ATL20Ardt_1900_00",1,atlas_municipal_extents)
+    create_entries_nofile("atlas_municipal_1912","Atlas municipal des vingt arrondissements de la ville de Paris [Exemplaire Ville de Paris/BHdV]","1912",
+                          f"{annotation_repo}/bhdv_atlas_municipal_1912/annotation_bhdv_atlas_municipal_1912.json&transformation.type=thinPlateSpline",list(range(1,17)),
+                          f"{annotation_repo}/bhdv_atlas_municipal_1912/BHdV_PL_ATL20Ardt_1912b_00",1,atlas_municipal_extents)
     create_entries_nofile("atlas_municipal_1925","Atlas municipal des vingt arrondissements de la ville de Paris [Exemplaire Ville de Paris/BHdV]","1925-1926",
-                          "https://github.com/soduco/allmaps_annotations/raw/main/output/bhdv_atlas_municipal_1925/annotation_bhdv_atlas_municipal_1925.json&transformation.type=thinPlateSpline",list(range(1,17)),
-                          "https://github.com/soduco/allmaps_annotations/raw/main/output/bhdv_atlas_municipal_1925/BHdV_PL_ATL20Ardt_1926_00",3,atlas_municipal_extents)
+                          f"{annotation_repo}/bhdv_atlas_municipal_1925/annotation_bhdv_atlas_municipal_1925.json&transformation.type=thinPlateSpline",list(range(1,17)),
+                          f"{annotation_repo}/bhdv_atlas_municipal_1925/BHdV_PL_ATL20Ardt_1926_00",3,atlas_municipal_extents)
     create_entries_nofile("atlas_municipal_1937","Atlas municipal des vingt arrondissements de la ville de Paris [Exemplaire Ville de Paris/BHdV]","1929-1936",
-                          "https://github.com/soduco/allmaps_annotations/raw/main/output/bhdv_atlas_municipal_1937/annotation_bhdv_atlas_municipal_1937.json&transformation.type=thinPlateSpline",list(range(1,17)),
-                          "https://github.com/soduco/allmaps_annotations/raw/main/output/bhdv_atlas_municipal_1937/BHdV_PL_ATL20Ardt_1937_00",0,atlas_municipal_extents)
+                          f"{annotation_repo}/bhdv_atlas_municipal_1937/annotation_bhdv_atlas_municipal_1937.json&transformation.type=thinPlateSpline",list(range(1,17)),
+                          f"{annotation_repo}/bhdv_atlas_municipal_1937/BHdV_PL_ATL20Ardt_1937_00",0,atlas_municipal_extents)
     create_entries_nofile("bhvp_jacoubet","Atlas général de la ville, des faubourgs et des monuments parisiens de Jacoubet [Exemplaire Ville de Paris/BHVP]","1825-1836",
-                          "https://github.com/soduco/allmaps_annotations/raw/main/output/bhvp_jacoubet/annotation_bhvp_jacoubet.json&transformation.type=thinPlateSpline",list(range(3,8))+list(range(10,53)),
-                          "https://github.com/soduco/allmaps_annotations/raw/main/output/bhvp_jacoubet/bhvp_jacoubet_",0,jacoubet_extents)
+                          f"{annotation_repo}/bhvp_jacoubet/annotation_bhvp_jacoubet.json&transformation.type=thinPlateSpline",list(range(3,8))+list(range(10,53)),
+                          f"{annotation_repo}/bhvp_jacoubet/bhvp_jacoubet_",0,jacoubet_extents)
     create_entries_nofile("SHDGR__GR_6_M_J10_C_1188","Parcellaire de Paris des ingénieurs géographes, environ 1820-1833 [Exemplaire SHD]","1820-1833",
-                          "https://github.com/soduco/allmaps_annotations/raw/main/output/SHDGR__GR_6_M_J10_C_1188/SHDGR__GR_6_M_J10_C_1188.json&transformation.type=thinPlateSpline", None, None, 0, parisExtent)
+                          f"{annotation_repo}/SHDGR__GR_6_M_J10_C_1188/SHDGR__GR_6_M_J10_C_1188.json&transformation.type=thinPlateSpline", None, None, 0, parisExtent)
     create_entries_nofile("atlas_general_paris","Atlas général de Paris (CP/F/31/1 et 2), environ 1807-1821 [Exemplaire AN FRAN_IR_057290]","1807-1821",
-                          "https://github.com/soduco/allmaps_annotations/raw/main/output/Atlas_general_de_Paris/Atlas_general_de_Paris.json&transformation.type=thinPlateSpline", None, None, 0, parisExtent)
+                          f"{annotation_repo}/Atlas_general_de_Paris/Atlas_general_de_Paris.json&transformation.type=thinPlateSpline", None, None, 0, parisExtent)
     config = {
         "services":{
             "tms":{
